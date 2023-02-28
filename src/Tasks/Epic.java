@@ -1,13 +1,11 @@
 package Tasks;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Epic extends Task {
 
-    public HashMap<Integer, Epic> epics = new HashMap<>();
-    public ArrayList<Integer> subTasks;
+    private ArrayList<Integer> subTasks;
 
 
     public Epic(String name, String description, String status) {
@@ -15,7 +13,9 @@ public class Epic extends Task {
         subTasks = new ArrayList<>();
     }
 
-    public Epic() {}
+    public ArrayList<Integer> getSubTasks() {
+        return subTasks;
+    }
 
     @Override
     public boolean equals(Object o) {

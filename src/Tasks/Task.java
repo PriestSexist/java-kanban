@@ -3,7 +3,6 @@ package Tasks;
 import java.util.*;
 
 public class Task {
-    public HashMap<Integer, Task> tasks = new HashMap<>();
     private String name;
     private String description;
     private int id;
@@ -16,8 +15,6 @@ public class Task {
         this.status = status;
         System.out.println("Хеш код = " + id);
     }
-
-    public Task() {}
 
     public String getName() {
         return name;
@@ -40,13 +37,13 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return getId() == task.getId() && tasks.equals(task.tasks) && getName().equals(task.getName())
+        return getId() == task.getId() && getName().equals(task.getName())
                 && getDescription().equals(task.getDescription()) && getStatus().equals(task.getStatus());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tasks, getName(), getDescription(), getId(), getStatus());
+        return Objects.hash( getName(), getDescription(), getId(), getStatus());
     }
 
     @Override

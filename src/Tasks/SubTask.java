@@ -1,11 +1,9 @@
 package Tasks;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public class SubTask extends Task {
 
-    public HashMap<Integer, SubTask> subTasks = new HashMap<>();
     private int parentId;
 
     public SubTask(String name, String description, int parentId, String status) {
@@ -16,8 +14,6 @@ public class SubTask extends Task {
     public int getParentId() {
         return parentId;
     }
-
-    public SubTask() {}
 
     @Override
     public boolean equals(Object o) {

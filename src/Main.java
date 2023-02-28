@@ -1,4 +1,4 @@
-import Functions.Functions;
+import Functions.TaskManager;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -14,7 +14,7 @@ public class Main {
         int command;
         int input;
 
-        Functions functions = new Functions();
+        TaskManager taskManager = new TaskManager();
 
         Task newTask;
         Epic newEpic;
@@ -34,36 +34,36 @@ public class Main {
 
             switch (command){
                 case 1:
-                    if (!functions.mainTask.tasks.isEmpty()) {
-                        functions.getAllTasks();
+                    if (!taskManager.storage.getTasks().isEmpty()) {
+                        taskManager.getAllTasks();
                     }
-                    if (!functions.mainEpic.epics.isEmpty()) {
-                        functions.getAllEpics();
+                    if (!taskManager.storage.getEpics().isEmpty()) {
+                        taskManager.getAllEpics();
                     }
-                    if (!functions.mainSubTask.subTasks.isEmpty()){
-                        functions.getAllSubTasks();
+                    if (!taskManager.storage.getSubTasks().isEmpty()){
+                        taskManager.getAllSubTasks();
                     }
-                    if (functions.mainTask.tasks.isEmpty() || functions.mainEpic.epics.isEmpty() || functions.mainSubTask.subTasks.isEmpty()) {
-                        System.out.println("Задач для удаления не найдено");
+                    if (taskManager.storage.getTasks().isEmpty() || taskManager.storage.getEpics().isEmpty() || taskManager.storage.getSubTasks().isEmpty()) {
+                        System.out.println("Задач не найдено");
                     }
                     break;
                 case 2:
-                    functions.deleteAllTasks();
-                    functions.deleteAllEpics();
-                    functions.deleteAllSubTasks();
+                    taskManager.deleteAllTasks();
+                    taskManager.deleteAllEpics();
+                    taskManager.deleteAllSubTasks();
                     break;
                 case 3:
                     System.out.println("Введите ID");
                     id = scanner.nextInt();
                     scanner.nextLine();
-                    if (functions.mainTask.tasks.containsKey(id)) {
-                        newTask = functions.getTask(id);
+                    if (taskManager.storage.getTasks().containsKey(id)) {
+                        newTask = taskManager.getTask(id);
                         break;
-                    } else if (functions.mainEpic.epics.containsKey(id)) {
-                        newEpic = functions.getEpic(id);
+                    } else if (taskManager.storage.getEpics().containsKey(id)) {
+                        newEpic = taskManager.getEpic(id);
                         break;
-                    } else if (functions.mainSubTask.subTasks.containsKey(id)){
-                        newSubTask = functions.getSubTask(id);
+                    } else if (taskManager.storage.getSubTasks().containsKey(id)){
+                        newSubTask = taskManager.getSubTask(id);
                         break;
                     } else {
                         System.out.println("Задач не найдено");
@@ -83,7 +83,7 @@ public class Main {
                         status = scanner.nextLine();
 
                         newTask = new Task(name, description, status);
-                        functions.createTask(newTask);
+                        taskManager.createTask(newTask);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
@@ -94,7 +94,7 @@ public class Main {
                         status = scanner.nextLine();
 
                         newEpic = new Epic(name, description, status);
-                        functions.createEpic(newEpic);
+                        taskManager.createEpic(newEpic);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите идентификатор эпика, подзадачей которого является " +
@@ -103,7 +103,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!functions.mainEpic.epics.containsKey(id)){
+                        if (!taskManager.storage.getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -116,10 +116,10 @@ public class Main {
                         status = scanner.nextLine();
 
                         newSubTask = new SubTask(name, description, id, status);
-                        functions.createSubTask(newSubTask);
+                        taskManager.createSubTask(newSubTask);
 
-                        newEpic = functions.getEpic(id);
-                        functions.addingSubTaskToEpic(newEpic, newSubTask);
+                        newEpic = taskManager.getEpic(id);
+                        taskManager.addingSubTaskToEpic(newEpic, newSubTask);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -142,7 +142,7 @@ public class Main {
                         scanner.nextLine();
 
                         newTask = new Task(name, description, status);
-                        functions.updateTask(newTask, oldId);
+                        taskManager.updateTask(newTask, oldId);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
@@ -155,7 +155,7 @@ public class Main {
                         scanner.nextLine();
 
                         newEpic = new Epic(name, description, status);
-                        functions.updateEpic(newEpic, oldId);
+                        taskManager.updateEpic(newEpic, oldId);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите идентификатор эпика, подзадачей которого является " +
@@ -164,7 +164,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!functions.mainEpic.epics.containsKey(id)){
+                        if (!taskManager.storage.getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -179,10 +179,10 @@ public class Main {
                         scanner.nextLine();
 
                         newSubTask = new SubTask(name, description, id, status);
-                        functions.updateSubTask(newSubTask, oldId);
+                        taskManager.updateSubTask(newSubTask, oldId);
 
-                        newEpic = functions.getEpic(id);
-                        functions.updatingSubTaskToEpic(newEpic, newSubTask, oldId);
+                        newEpic = taskManager.getEpic(id);
+                        taskManager.updatingSubTaskToEpic(newEpic, newSubTask, oldId);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -197,20 +197,20 @@ public class Main {
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        functions.deleteTask(id);
+                        taskManager.deleteTask(id);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        functions.deleteEpic(id);
-                        functions.deleteConnectedSubTasks(id);
+                        taskManager.deleteEpic(id);
+                        taskManager.deleteConnectedSubTasks(id);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        functions.deleteSubTask(id);
+                        taskManager.deleteSubTask(id);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -221,12 +221,12 @@ public class Main {
                     id = scanner.nextInt();
                     scanner.nextLine();
 
-                    if (!functions.mainEpic.epics.containsKey(id)){
+                    if (!taskManager.storage.getEpics().containsKey(id)){
                         System.out.println("Данного эпика не существует!");
                         break;
                     }
 
-                    ArrayList<SubTask> subTaskArrayList = functions.subTasksOfEpic(id);
+                    ArrayList<SubTask> subTaskArrayList = taskManager.subTasksOfEpic(id);
                     break;
                 case 0:
                     System.exit(0);
