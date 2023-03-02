@@ -124,6 +124,15 @@ public class TaskManager {
     public void updateEpic(Epic epic, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
         if (storage.getEpics().containsKey(oldId)) {
+            for (Integer key: storage.getEpics().get(oldId).getSubTasks()) {
+                epic.getSubTasks().add(key);
+            }
+            for (Integer key :storage.getSubTasks().keySet()) {
+                if (storage.getSubTasks().get(key).getParentId() == oldId){
+                    storage.getSubTasks().get(key).setParentId(epic.getId());
+                }
+
+            }
             storage.getEpics().remove(oldId);
             storage.getEpics().put(epic.getId(), epic);
             System.out.println("Изменения занесены");
