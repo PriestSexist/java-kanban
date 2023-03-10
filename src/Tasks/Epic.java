@@ -2,13 +2,14 @@ package Tasks;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import Storage.TaskStatus;
 
 public class Epic extends Task {
 
-    private ArrayList<Integer> subTasks;
+    private final ArrayList<Integer> subTasks;
 
 
-    public Epic(String name, String description, String status) {
+    public Epic(String name, String description, TaskStatus status) {
         super(name, description, status);
         subTasks = new ArrayList<>();
     }
@@ -16,6 +17,8 @@ public class Epic extends Task {
     public ArrayList<Integer> getSubTasks() {
         return subTasks;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

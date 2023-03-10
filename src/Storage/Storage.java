@@ -8,9 +8,11 @@ import java.util.HashMap;
 
 public class Storage {
 
-    private HashMap<Integer, Epic> epics = new HashMap<>();
-    private HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    private HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+
+    private final HashMap<Integer, Task> history = new HashMap<>();
 
     public HashMap<Integer, Epic> getEpics() {
         return epics;
@@ -24,4 +26,7 @@ public class Storage {
         return tasks;
     }
 
+    public HashMap<Integer, Task> getHistory() {
+        return history;
+    }
 }

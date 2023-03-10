@@ -1,12 +1,13 @@
 package Tasks;
 
 import java.util.Objects;
+import Storage.TaskStatus;
 
 public class SubTask extends Task {
 
     private int parentId;
 
-    public SubTask(String name, String description, int parentId, String status) {
+    public SubTask(String name, String description, int parentId, TaskStatus status) {
         super(name, description, status);
         this.parentId = parentId;
     }

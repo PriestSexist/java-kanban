@@ -1,14 +1,15 @@
 package Tasks;
 
 import java.util.*;
+import Storage.TaskStatus;
 
 public class Task {
-    private String name;
-    private String description;
-    private int id;
-    private String status;
+    private final String name;
+    private final String description;
+    private final int id;
+    private TaskStatus status;
 
-    public Task(String name, String description, String status) {
+    public Task(String name, String description, TaskStatus status) {
         this.name = name;
         this.description = description;
         this.id = hashCode();
@@ -24,8 +25,12 @@ public class Task {
         return description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
     }
 
     public int getId() {

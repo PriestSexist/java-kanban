@@ -1,0 +1,8 @@
+package Manager.HistoryManager;
+
+import Tasks.Task;
+
+public interface HistoryManager {
+    void add(Task task);
+    void getHistory();
+}
