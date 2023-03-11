@@ -1,5 +1,6 @@
 package Manager.TaskManager;
 
+import Manager.Managers;
 import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Epic;
@@ -11,9 +12,8 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
 
-
     public Storage storage = new Storage();
-    private static int historyCounter = 0;
+
     @Override
     public HashMap<Integer, Task> getAllTasks(){
 
@@ -62,11 +62,7 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
         System.out.println(storage.getTasks().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        if (historyCounter >= 10) {
-            historyCounter = 0;
-        }
-        storage.getHistory().put(historyCounter,storage.getTasks().get(id));
-        historyCounter+=1;
+        Managers.getDefaultHistory().add(storage.getTasks().get(id));
         return storage.getTasks().get(id);
     }
     @Override
@@ -74,11 +70,7 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
         System.out.println(storage.getEpics().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        if (historyCounter >= 10) {
-            historyCounter = 0;
-        }
-        storage.getHistory().put(historyCounter,storage.getEpics().get(id));
-        historyCounter+=1;
+        Managers.getDefaultHistory().add(storage.getEpics().get(id));
         return storage.getEpics().get(id);
     }
     @Override
@@ -86,11 +78,7 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
         System.out.println(storage.getSubTasks().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        if (historyCounter >= 10) {
-            historyCounter = 0;
-        }
-        storage.getHistory().put(historyCounter,storage.getSubTasks().get(id));
-        historyCounter+=1;
+        Managers.getDefaultHistory().add(storage.getSubTasks().get(id));
         return storage.getSubTasks().get(id);
     }
     @Override

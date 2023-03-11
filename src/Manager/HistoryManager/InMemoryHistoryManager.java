@@ -5,6 +5,8 @@ import Tasks.Task;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
+    private static int historyCounter = 0;
+
     InMemoryTaskManager inMemoryTaskManager;
 
     public InMemoryHistoryManager(InMemoryTaskManager inMemoryTaskManager) {
@@ -13,13 +15,16 @@ public class InMemoryHistoryManager implements HistoryManager{
 
     @Override
     public void getHistory() {
-        for (Integer key : inMemoryTaskManager.storage.getHistory().keySet()) {
-            System.out.println(inMemoryTaskManager.storage.getHistory().get(key).getId());
+        for (Integer key : inMemoryTaskManager.storage.getHistoryMap().keySet()) {
+            System.out.println(inMemoryTaskManager.storage.getHistoryMap().get(key).getId());
         }
     }
-    @Override
+
     public void add(Task task) {
-
+        if (historyCounter >= 10) {
+            historyCounter = 0;
+        }
+        inMemoryTaskManager.storage.getHistoryMap().put(historyCounter, task);
+        historyCounter+=1;
     }
-
 }

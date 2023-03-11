@@ -26,7 +26,7 @@ public class Storage {
         return tasks;
     }
 
-    public HashMap<Integer, Task> getHistory() {
+    public HashMap<Integer, Task> getHistoryMap() {
         return history;
     }
 }

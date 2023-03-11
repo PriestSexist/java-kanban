@@ -17,9 +17,8 @@ public class Main {
         int command;
         int input;
 
-        Managers managers = new Managers();
-        InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) managers.getDefault();
-        InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) managers.getDefaultHistory();
+        InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
+        InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
 
         Task newTask;
         Epic newEpic;
