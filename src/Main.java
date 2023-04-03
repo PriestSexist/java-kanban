@@ -232,7 +232,7 @@ public class Main {
                     break;
                 case 8:
                     System.out.println("История: ");
-                    inMemoryHistoryManager.getHistory();
+                    System.out.println(inMemoryHistoryManager.getHistory());
                     break;
                 case 0:
                     System.exit(0);

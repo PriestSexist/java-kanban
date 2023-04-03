@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    public Storage storage = new Storage();
+    public Storage  storage= new Storage();
 
     @Override
     public HashMap<Integer, Task> getAllTasks(){
@@ -170,7 +170,9 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск элемента для удаления");
         if (storage.getTasks().containsKey(id)) {
             storage.getTasks().remove(id);
+            Managers.getDefaultHistory().remove(id);
             System.out.println("Задача удалена");
+
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
         }
@@ -180,6 +182,7 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск элемента для удаления");
         if (storage.getEpics().containsKey(id)) {
             storage.getEpics().remove(id);
+            Managers.getDefaultHistory().remove(id);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
@@ -190,6 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
         System.out.println("Начинаю поиск элемента для удаления");
         if (storage.getSubTasks().containsKey(id)) {
             storage.getSubTasks().remove(id);
+            Managers.getDefaultHistory().remove(id);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
@@ -205,6 +209,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Integer key : keys) {
             storage.getSubTasks().remove(key);
+            Managers.getDefaultHistory().remove(key);
         }
     }
 
