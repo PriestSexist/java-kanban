@@ -8,7 +8,7 @@ import Manager.TaskManager.TaskManager;
 public class Managers {
 
     private static final InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
-    private static final InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager(inMemoryTaskManager);
+    private static final InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
 
     public static TaskManager getDefault(){
         return inMemoryTaskManager;

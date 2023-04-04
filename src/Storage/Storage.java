@@ -9,19 +9,19 @@ import java.util.Map;
 
 public class Storage {
 
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Node> historyMap = new HashMap<>();
+    private static final HashMap<Integer, Epic> epics = new HashMap<>();
+    private static final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private static final HashMap<Integer, Task> tasks = new HashMap<>();
+    private static final Map<Integer, Node> historyMap = new HashMap<>();
 
-    public HashMap<Integer, Epic> getEpics() {
+    public static HashMap<Integer, Epic> getEpics() {
         return epics;
     }
-    public HashMap<Integer, SubTask> getSubTasks() {
+    public static HashMap<Integer, SubTask> getSubTasks() {
         return subTasks;
     }
-    public HashMap<Integer, Task> getTasks() {
+    public static HashMap<Integer, Task> getTasks() {
         return tasks;
     }
-    public Map<Integer, Node> getHistoryMap() { return historyMap; }
+    public static Map<Integer, Node> getHistoryMap() { return historyMap; }
 }
