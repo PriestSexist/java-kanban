@@ -1,6 +1,5 @@
 package Manager.HistoryManager;
 
-import Storage.Storage;
 import Tasks.Task;
 import Storage.Node;
 
@@ -12,17 +11,18 @@ public class InMemoryHistoryManager implements HistoryManager{
     private Node first = null;
     private Node last = null;
     private int size = 0;
-    private static final int NUMB = 10;
+    private static final int MAX_SIZE = 10;
 
     // Данный метод продекларирован в интерфейсе HistoryManager
+    @Override
     public void add(Task task) {
-        if (size >= NUMB && !Storage.getHistoryMap().containsKey(task.getId())) {
+        if (size >= MAX_SIZE && historyMap.containsKey(task.getId())) {
             removeNode(first);
             linkLast(task);
-        } else if (Storage.getHistoryMap().containsKey(task.getId())) {
+        } else if (historyMap.containsKey(task.getId())) {
             remove(task.getId());
             linkLast(task);
-        } else if (size < NUMB) {
+        } else if (size < MAX_SIZE) {
             linkLast(task);
         }
     }
@@ -30,7 +30,7 @@ public class InMemoryHistoryManager implements HistoryManager{
     // Данный метод продекларирован в интерфейсе HistoryManager
     @Override
     public void remove(int id) {
-        removeNode(Storage.getHistoryMap().get(id));
+        removeNode(historyMap.get(id));
     }
 
     // Данный метод продекларирован в интерфейсе HistoryManager
@@ -44,13 +44,13 @@ public class InMemoryHistoryManager implements HistoryManager{
         Node node = new Node(task, null, last);
 
         if (last != null) {
-            Storage.getHistoryMap().get(last.getData().getId()).setNext(node);
+            historyMap.get(last.getData().getId()).setNext(node);
         } else {
             first = node;
         }
 
         last = node;
-        Storage.getHistoryMap().put(task.getId(), node);
+        historyMap.put(task.getId(), node);
         size++;
     }
 
@@ -85,7 +85,7 @@ public class InMemoryHistoryManager implements HistoryManager{
             last = null;
         }
 
-        Storage.getHistoryMap().remove(node.getData().getId());
+        historyMap.remove(node.getData().getId());
         size--;
     }
 }

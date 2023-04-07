@@ -1,6 +1,6 @@
 package Manager.TaskManager;
 
-import Manager.Managers;
+import Manager.HistoryManager.HistoryManager;
 import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Epic;
@@ -12,80 +12,89 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
 
+    private static HistoryManager inMemoryHistoryManager;
+    private final Storage storage = new Storage();
 
+    public InMemoryTaskManager(HistoryManager historyManager) {
+        inMemoryHistoryManager = historyManager;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
 
     @Override
     public HashMap<Integer, Task> getAllTasks(){
 
         System.out.println("Начинаю искать все задачи");
         System.out.println("Вот найденные задачи: ");
-        for (Integer key : Storage.getTasks().keySet()) {
-            System.out.println(Storage.getTasks().get(key));
+        for (Integer key : storage.getTasks().keySet()) {
+            System.out.println(storage.getTasks().get(key));
         }
-        return Storage.getTasks();
+        return storage.getTasks();
 
     }
     @Override
     public HashMap<Integer, Epic> getAllEpics() {
 
         System.out.println("Вот найденные эпики: ");
-        for (Integer key : Storage.getEpics().keySet()) {
-            System.out.println(Storage.getEpics().get(key));
+        for (Integer key : storage.getEpics().keySet()) {
+            System.out.println(storage.getEpics().get(key));
         }
-        return Storage.getEpics();
+        return storage.getEpics();
     }
     @Override
     public HashMap<Integer, SubTask> getAllSubTasks() {
 
         System.out.println("Вот найденные подзадачи: ");
-        for (Integer key : Storage.getSubTasks().keySet()) {
-            System.out.println(Storage.getSubTasks().get(key));
+        for (Integer key : storage.getSubTasks().keySet()) {
+            System.out.println(storage.getSubTasks().get(key));
         }
-        return Storage.getSubTasks();
+        return storage.getSubTasks();
     }
     @Override
     public void deleteAllTasks(){
         System.out.println("Удаляю задачи...");
-        Storage.getTasks().clear();
+        storage.getTasks().clear();
     }
     @Override
     public void deleteAllEpics() {
-        Storage.getEpics().clear();
+        storage.getEpics().clear();
     }
     @Override
     public void deleteAllSubTasks() {
-        Storage.getSubTasks().clear();
+        storage.getSubTasks().clear();
         System.out.println("Все задачи удалены!");
     }
     @Override
     public Task getTask(int id){
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(Storage.getTasks().get(id));
+        System.out.println(storage.getTasks().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        Managers.getDefaultHistory().add(Storage.getTasks().get(id));
-        return Storage.getTasks().get(id);
+        inMemoryHistoryManager.add(storage.getTasks().get(id));
+        return storage.getTasks().get(id);
     }
     @Override
     public Epic getEpic(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(Storage.getEpics().get(id));
+        System.out.println(storage.getEpics().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        Managers.getDefaultHistory().add(Storage.getEpics().get(id));
-        return Storage.getEpics().get(id);
+        inMemoryHistoryManager.add(storage.getEpics().get(id));
+        return storage.getEpics().get(id);
     }
     @Override
     public SubTask getSubTask(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(Storage.getSubTasks().get(id));
+        System.out.println(storage.getSubTasks().get(id));
         System.out.println("Идентификатор найден. Возвращаю его");
-        Managers.getDefaultHistory().add(Storage.getSubTasks().get(id));
-        return Storage.getSubTasks().get(id);
+        inMemoryHistoryManager.add(storage.getSubTasks().get(id));
+        return storage.getSubTasks().get(id);
     }
     @Override
     public void createTask(Task task) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!Storage.getTasks().containsKey(task.getId())) {
-            Storage.getTasks().put(task.getId(), task);
+        if (!storage.getTasks().containsKey(task.getId())) {
+            storage.getTasks().put(task.getId(), task);
             System.out.println("Задача успешно занесена в программу");
         } else {
             System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
@@ -94,8 +103,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createEpic(Epic epic) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!Storage.getEpics().containsKey(epic.getId())) {
-            Storage.getEpics().put(epic.getId(), epic);
+        if (!storage.getEpics().containsKey(epic.getId())) {
+            storage.getEpics().put(epic.getId(), epic);
             System.out.println("Задача успешно занесена в программу");
         } else {
             System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
@@ -104,8 +113,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createSubTask(SubTask subTask) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!Storage.getSubTasks().containsKey(subTask.getId())) {
-            Storage.getSubTasks().put(subTask.getId(), subTask);
+        if (!storage.getSubTasks().containsKey(subTask.getId())) {
+            storage.getSubTasks().put(subTask.getId(), subTask);
             System.out.println("Задача успешно занесена в программу");
         } else {
             System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
@@ -113,15 +122,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void addingSubTaskToEpic(int id, SubTask subTask){
-        Epic epic = Storage.getEpics().get(id);
+        Epic epic = storage.getEpics().get(id);
         epic.getSubTasks().add(subTask.getId());
     }
     @Override
     public void updateTask(Task task, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (Storage.getTasks().containsKey(oldId)) {
-            Storage.getTasks().remove(oldId);
-            Storage.getTasks().put(task.getId(), task);
+        if (storage.getTasks().containsKey(oldId)) {
+            storage.getTasks().remove(oldId);
+            storage.getTasks().put(task.getId(), task);
             System.out.println("Изменения занесены");
         } else {
             System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
@@ -130,19 +139,19 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (Storage.getEpics().containsKey(oldId)) {
-            epic.setStatus(Storage.getEpics().get(oldId).getStatus());
-            for (Integer key: Storage.getEpics().get(oldId).getSubTasks()) {
+        if (storage.getEpics().containsKey(oldId)) {
+            epic.setStatus(storage.getEpics().get(oldId).getStatus());
+            for (Integer key: storage.getEpics().get(oldId).getSubTasks()) {
                 epic.getSubTasks().add(key);
             }
-            for (Integer key :Storage.getSubTasks().keySet()) {
-                if (Storage.getSubTasks().get(key).getParentId() == oldId){
-                    Storage.getSubTasks().get(key).setParentId(epic.getId());
+            for (Integer key :storage.getSubTasks().keySet()) {
+                if (storage.getSubTasks().get(key).getParentId() == oldId){
+                    storage.getSubTasks().get(key).setParentId(epic.getId());
                 }
 
             }
-            Storage.getEpics().remove(oldId);
-            Storage.getEpics().put(epic.getId(), epic);
+            storage.getEpics().remove(oldId);
+            storage.getEpics().put(epic.getId(), epic);
             System.out.println("Изменения занесены");
         } else {
             System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
@@ -151,9 +160,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask subTask, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (Storage.getSubTasks().containsKey(oldId)) {
-            Storage.getSubTasks().remove(oldId);
-            Storage.getSubTasks().put(subTask.getId(), subTask);
+        if (storage.getSubTasks().containsKey(oldId)) {
+            storage.getSubTasks().remove(oldId);
+            storage.getSubTasks().put(subTask.getId(), subTask);
             System.out.println("Изменения занесены");
         } else {
             System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
@@ -161,16 +170,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updatingSubTaskToEpic(int id, SubTask subTask, int oldId){
-        Epic epic = Storage.getEpics().get(id);
+        Epic epic = storage.getEpics().get(id);
         epic.getSubTasks().remove(Integer.valueOf(oldId));
         epic.getSubTasks().add(subTask.getId());
     }
     @Override
     public void deleteTask(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
-        if (Storage.getTasks().containsKey(id)) {
-            Storage.getTasks().remove(id);
-            Managers.getDefaultHistory().remove(id);
+        if (storage.getTasks().containsKey(id)) {
+            storage.getTasks().remove(id);
+            inMemoryHistoryManager.remove(id);
             System.out.println("Задача удалена");
 
         } else {
@@ -180,9 +189,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpic(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
-        if (Storage.getEpics().containsKey(id)) {
-            Storage.getEpics().remove(id);
-            Managers.getDefaultHistory().remove(id);
+        if (storage.getEpics().containsKey(id)) {
+            storage.getEpics().remove(id);
+            inMemoryHistoryManager.remove(id);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
@@ -191,9 +200,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubTask(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
-        if (Storage.getSubTasks().containsKey(id)) {
-            Storage.getSubTasks().remove(id);
-            Managers.getDefaultHistory().remove(id);
+        if (storage.getSubTasks().containsKey(id)) {
+            storage.getSubTasks().remove(id);
+            inMemoryHistoryManager.remove(id);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
@@ -202,22 +211,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void deleteConnectedSubTasks(int id) {
         ArrayList<Integer> keys = new ArrayList<>();
-        for (Integer key : Storage.getSubTasks().keySet()) {
-            if (Storage.getSubTasks().get(key).getParentId() == id) {
+        for (Integer key : storage.getSubTasks().keySet()) {
+            if (storage.getSubTasks().get(key).getParentId() == id) {
                 keys.add(key);
             }
         }
         for (Integer key : keys) {
-            Storage.getSubTasks().remove(key);
-            Managers.getDefaultHistory().remove(key);
+            storage.getSubTasks().remove(key);
+            inMemoryHistoryManager.remove(key);
         }
     }
 
     public ArrayList<SubTask> gettingSubTasksOfEpic(int id) {
         ArrayList<SubTask> subTaskArrayList = new ArrayList<>();
-        for (Integer key : Storage.getSubTasks().keySet()) {
-            if (Storage.getSubTasks().get(key).getParentId() == id)
-                subTaskArrayList.add(Storage.getSubTasks().get(key));
+        for (Integer key : storage.getSubTasks().keySet()) {
+            if (storage.getSubTasks().get(key).getParentId() == id)
+                subTaskArrayList.add(storage.getSubTasks().get(key));
 
         }
         System.out.println(subTaskArrayList);
@@ -226,23 +235,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void statusCheckerAndChanger(int epicId){
         int countNewStatus = 0;
-        for (Integer subTasksKey : Storage.getEpics().get(epicId).getSubTasks()) {
+        for (Integer subTasksKey : storage.getEpics().get(epicId).getSubTasks()) {
 
-            if (Storage.getSubTasks().get(subTasksKey).getStatus().equals(TaskStatus.IN_PROGRESS)) {
-                Storage.getEpics().get(epicId).setStatus(TaskStatus.IN_PROGRESS);
+            if (storage.getSubTasks().get(subTasksKey).getStatus().equals(TaskStatus.IN_PROGRESS)) {
+                storage.getEpics().get(epicId).setStatus(TaskStatus.IN_PROGRESS);
                 return;
             }
 
-            if (Storage.getSubTasks().get(subTasksKey).getStatus().equals(TaskStatus.NEW)) {
+            if (storage.getSubTasks().get(subTasksKey).getStatus().equals(TaskStatus.NEW)) {
                 countNewStatus += 1;
             }
         }
         if (countNewStatus == 0) {
-            Storage.getEpics().get(epicId).setStatus(TaskStatus.DONE);
-        } else if (countNewStatus != Storage.getSubTasks().size()) {
-            Storage.getEpics().get(epicId).setStatus(TaskStatus.IN_PROGRESS);
+            storage.getEpics().get(epicId).setStatus(TaskStatus.DONE);
+        } else if (countNewStatus != storage.getSubTasks().size()) {
+            storage.getEpics().get(epicId).setStatus(TaskStatus.IN_PROGRESS);
         } else {
-            Storage.getEpics().get(epicId).setStatus(TaskStatus.NEW);
+            storage.getEpics().get(epicId).setStatus(TaskStatus.NEW);
         }
     }
 }

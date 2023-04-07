@@ -1,8 +1,7 @@
 import Manager.HistoryManager.InMemoryHistoryManager;
 import Manager.Managers;
-import Storage.Storage;
-import Storage.TaskStatus;
 import Manager.TaskManager.InMemoryTaskManager;
+import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -11,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -20,6 +20,7 @@ public class Main {
 
         InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
+
 
         Task newTask;
         Epic newEpic;
@@ -39,16 +40,18 @@ public class Main {
 
             switch (command){
                 case 1:
-                    if (!Storage.getTasks().isEmpty()) {
+                    if (!inMemoryTaskManager.getStorage().getTasks().isEmpty()) {
                         inMemoryTaskManager.getAllTasks();
                     }
-                    if (!Storage.getEpics().isEmpty()) {
+                    if (!inMemoryTaskManager.getStorage().getEpics().isEmpty()) {
                         inMemoryTaskManager.getAllEpics();
                     }
-                    if (!Storage.getSubTasks().isEmpty()){
+                    if (!inMemoryTaskManager.getStorage().getSubTasks().isEmpty()){
                         inMemoryTaskManager.getAllSubTasks();
                     }
-                    if (Storage.getTasks().isEmpty() && Storage.getEpics().isEmpty() && Storage.getSubTasks().isEmpty()) {
+                    if (inMemoryTaskManager.getStorage().getTasks().isEmpty() &&
+                            inMemoryTaskManager.getStorage().getEpics().isEmpty() &&
+                            inMemoryTaskManager.getStorage().getSubTasks().isEmpty()) {
                         System.out.println("Задач не найдено");
                     }
                     break;
@@ -61,13 +64,13 @@ public class Main {
                     System.out.println("Введите ID");
                     id = scanner.nextInt();
                     scanner.nextLine();
-                    if (Storage.getTasks().containsKey(id)) {
+                    if (inMemoryTaskManager.getStorage().getTasks().containsKey(id)) {
                         newTask = inMemoryTaskManager.getTask(id);
                         break;
-                    } else if (Storage.getEpics().containsKey(id)) {
+                    } else if (inMemoryTaskManager.getStorage().getEpics().containsKey(id)) {
                         newEpic = inMemoryTaskManager.getEpic(id);
                         break;
-                    } else if (Storage.getSubTasks().containsKey(id)){
+                    } else if (inMemoryTaskManager.getStorage().getSubTasks().containsKey(id)){
                         newSubTask = inMemoryTaskManager.getSubTask(id);
                         break;
                     } else {
@@ -108,7 +111,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!Storage.getEpics().containsKey(id)){
+                        if (!inMemoryTaskManager.getStorage().getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -167,7 +170,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!Storage.getEpics().containsKey(id)){
+                        if (!inMemoryTaskManager.getStorage().getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -224,7 +227,7 @@ public class Main {
                     id = scanner.nextInt();
                     scanner.nextLine();
 
-                    if (!Storage.getEpics().containsKey(id)){
+                    if (!inMemoryTaskManager.getStorage().getEpics().containsKey(id)){
                         System.out.println("Данного эпика не существует!");
                         break;
                     }
