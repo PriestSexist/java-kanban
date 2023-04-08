@@ -12,13 +12,14 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private static HistoryManager inMemoryHistoryManager;
+    private final HistoryManager inMemoryHistoryManager;
     private final Storage storage = new Storage();
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         inMemoryHistoryManager = historyManager;
     }
 
+    @Override
     public Storage getStorage() {
         return storage;
     }

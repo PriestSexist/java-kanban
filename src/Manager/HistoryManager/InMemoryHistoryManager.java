@@ -4,10 +4,13 @@ import Tasks.Task;
 import Storage.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
+    private final Map<Integer, Node> historyMap = new HashMap<>();
     private Node first = null;
     private Node last = null;
     private int size = 0;
@@ -44,7 +47,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         Node node = new Node(task, null, last);
 
         if (last != null) {
-            historyMap.get(last.getData().getId()).setNext(node);
+            last.setNext(node);
         } else {
             first = node;
         }

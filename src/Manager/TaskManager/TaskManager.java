@@ -1,5 +1,6 @@
 package Manager.TaskManager;
 
+import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -42,4 +43,6 @@ public interface TaskManager {
     void deleteEpic(int id);
 
     void deleteSubTask(int id);
+    Storage getStorage();
+
 }
