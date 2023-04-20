@@ -80,7 +80,7 @@ public class Main {
                     }
                 case 4:
                     System.out.println("Первым делом введите тип задачи. 1 - обычная задача. 2 - эпик. " +
-                                       "3 - подзадача");
+                            "3 - подзадача");
                     input = scanner.nextInt();
                     scanner.nextLine();
                     if (input == 1) {
