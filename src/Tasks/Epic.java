@@ -1,8 +1,9 @@
 package Tasks;
 
+import Storage.TaskStatus;
+
 import java.util.ArrayList;
 import java.util.Objects;
-import Storage.TaskStatus;
 
 public class Epic extends Task {
 
@@ -17,8 +18,6 @@ public class Epic extends Task {
     public ArrayList<Integer> getSubTasks() {
         return subTasks;
     }
-
-
 
     @Override
     public boolean equals(Object o) {
