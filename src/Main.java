@@ -1,4 +1,3 @@
-import Manager.Managers;
 import Manager.TaskManager.FileBackedTasksManager;
 import Storage.TaskStatus;
 import Tasks.Epic;
@@ -19,9 +18,7 @@ public class Main {
 
         // InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
         // InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
-        FileBackedTasksManager fileBackedTasksManager = Managers.getDefaultFileBackend();
-        fileBackedTasksManager.loadFromFile("C:\\test.txt");
-
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile("C:\\test.txt");
 
         Task newTask;
         Epic newEpic;

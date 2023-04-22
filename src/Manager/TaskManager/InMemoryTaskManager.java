@@ -12,8 +12,8 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    protected final HistoryManager inMemoryHistoryManager;
-    protected final Storage storage = new Storage();
+    protected static HistoryManager inMemoryHistoryManager = null;
+    private final Storage storage = new Storage();
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         inMemoryHistoryManager = historyManager;
