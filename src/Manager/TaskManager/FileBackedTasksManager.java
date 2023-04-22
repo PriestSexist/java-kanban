@@ -109,7 +109,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 fileWriter.write("\n");
 
 
-                fileWriter.write(historyToString(inMemoryHistoryManager));
+                fileWriter.write(historyToString());
 
             } catch (IOException e) {
                 throw new ManagerSaveException("IO ошибка");
@@ -127,6 +127,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     line = buffer.readLine();
                     if (!line.equals("")) {
                         Task task = fromString(line);
+                        // switch case? Не совсем понимаю, как switch case можно использовать с instanceof
                         if (task instanceof Epic) {
                             storage.getEpics().put(task.getId(), (Epic) task);
                         } else if (task instanceof SubTask) {
@@ -148,9 +149,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private String historyToString(HistoryManager manager){
+    private String historyToString(){
         StringBuilder line = new StringBuilder();
-        for (Task task : manager.getHistory()) {
+        for (Task task : inMemoryHistoryManager.getHistory()) {
             line.append(task.getId()).append(", ");
         }
         return line.toString();
@@ -159,6 +160,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private void historyFromString(String value){
         String[] lines = value.split(", ");
         for (String id : lines){
+            //switch case? Не совсем понимаю, как использовать тут switch case, где я проверяю наличие ключа в мапе
             if (storage.getTasks().containsKey(Integer.parseInt(id))){
                 inMemoryHistoryManager.add(storage.getTasks().get(Integer.parseInt(id)));
             } else if (storage.getEpics().containsKey(Integer.parseInt(id))) {
@@ -170,24 +172,28 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     private String toString(Task task){
-        String string =  task.getId() + ", ";
         if (task instanceof Epic){
-            return string + TaskType.EPIC + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
+            return task.getId() + ", " + TaskType.EPIC + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
         } else if (task instanceof SubTask) {
-            return string + TaskType.SUBTASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + ((SubTask) task).getParentId() + "\n";
-        } else {
-            return string + TaskType.TASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
+            return task.getId() + ", " + TaskType.SUBTASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + ((SubTask) task).getParentId() + "\n";
         }
+            return task.getId() + ", " + TaskType.TASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
     }
 
     private Task fromString(String value){
         String[] lines = value.split(", ");
-        if (lines[1].equals(TaskType.TASK.toString())){
-            return new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
-        } else if (lines[1].equals(TaskType.EPIC.toString())) {
-            return new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
-        } else {
-            return new SubTask(lines[2], lines[4], Integer.parseInt(lines[5]), TaskStatus.valueOf(lines[3]));
+        Task task = null;
+        switch (Enum.valueOf(TaskType.class, lines[1])){
+            case TASK :
+                task = new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
+                break;
+            case EPIC:
+                task = new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
+                break;
+            case SUBTASK:
+                task = new SubTask(lines[2], lines[4], Integer.parseInt(lines[5]), TaskStatus.valueOf(lines[3]));
+                break;
         }
+        return task;
     }
 }
