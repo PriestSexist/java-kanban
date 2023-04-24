@@ -18,7 +18,7 @@ public class Main {
 
         // InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
         // InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile("C:\\test.txt");
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile("./resources/test.txt");
 
         Task newTask;
         Epic newEpic;

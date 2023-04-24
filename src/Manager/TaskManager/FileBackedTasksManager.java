@@ -11,7 +11,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -21,11 +20,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public FileBackedTasksManager(String path) {
         super(Managers.getDefaultHistory());
         this.path = path;
-    }
-
-    @Override
-    public HashMap<Integer, Task> getAllTasks() {
-        return super.getAllTasks();
     }
 
     @Override
@@ -138,7 +132,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public static FileBackedTasksManager loadFromFile(String path){
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager("C:\\test.txt");
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(path);
         try (FileReader reader = new FileReader(path); BufferedReader buffer = new BufferedReader(reader)) {
             String line = buffer.readLine();
             while (buffer.ready()) {
@@ -199,18 +193,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private static Task fromString(String value){
         String[] lines = value.split(", ");
-        Task task = null;
         switch (Enum.valueOf(TaskType.class, lines[1])){
             case TASK :
-                task = new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
-                break;
+                return new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
             case EPIC:
-                task = new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
-                break;
+                return new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
             case SUBTASK:
-                task = new SubTask(lines[2], lines[4], Integer.parseInt(lines[5]), TaskStatus.valueOf(lines[3]));
-                break;
+                return new SubTask(lines[2], lines[4], Integer.parseInt(lines[5]), TaskStatus.valueOf(lines[3]));
         }
-        return task;
+        return null;
     }
 }
