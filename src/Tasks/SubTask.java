@@ -1,14 +1,16 @@
 package Tasks;
 
-import java.util.Objects;
 import Storage.TaskStatus;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class SubTask extends Task {
 
     private int parentId;
 
-    public SubTask(String name, String description, int parentId, TaskStatus status) {
-        super(name, description, status);
+    public SubTask(String name, String description, TaskStatus status, LocalDateTime startTime, long duration, int parentId) {
+        super(name, description, status, startTime, duration);
         this.parentId = parentId;
     }
 

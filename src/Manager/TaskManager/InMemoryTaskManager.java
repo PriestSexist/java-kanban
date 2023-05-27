@@ -7,12 +7,16 @@ import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    protected static HistoryManager inMemoryHistoryManager = null;
+    protected static HistoryManager inMemoryHistoryManager;
     private final Storage storage = new Storage();
 
     public InMemoryTaskManager(HistoryManager historyManager) {
@@ -23,7 +27,6 @@ public class InMemoryTaskManager implements TaskManager {
         return inMemoryHistoryManager;
     }
 
-    @Override
     public Storage getStorage() {
         return storage;
     }
@@ -74,77 +77,92 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int id){
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(storage.getTasks().get(id));
-        System.out.println("Идентификатор найден. Возвращаю его");
-        inMemoryHistoryManager.add(storage.getTasks().get(id));
-        return storage.getTasks().get(id);
+        if (storage.getTasks().containsKey(id)) {
+            System.out.println(storage.getTasks().get(id));
+            System.out.println("Идентификатор найден. Возвращаю его");
+            inMemoryHistoryManager.add(storage.getTasks().get(id));
+            return storage.getTasks().get(id);
+        }
+        System.out.println("Ничего не найдено");
+        return null;
+
     }
     @Override
     public Epic getEpic(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(storage.getEpics().get(id));
-        System.out.println("Идентификатор найден. Возвращаю его");
-        inMemoryHistoryManager.add(storage.getEpics().get(id));
-        return storage.getEpics().get(id);
+        if (storage.getEpics().containsKey(id)) {
+            System.out.println(storage.getEpics().get(id));
+            System.out.println("Идентификатор найден. Возвращаю его");
+            inMemoryHistoryManager.add(storage.getEpics().get(id));
+            return storage.getEpics().get(id);
+        }
+        System.out.println("Ничего не найдено");
+        return null;
+
     }
     @Override
     public SubTask getSubTask(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
-        System.out.println(storage.getSubTasks().get(id));
-        System.out.println("Идентификатор найден. Возвращаю его");
-        inMemoryHistoryManager.add(storage.getSubTasks().get(id));
-        return storage.getSubTasks().get(id);
+        if (storage.getSubTasks().containsKey(id)){
+            System.out.println(storage.getSubTasks().get(id));
+            System.out.println("Идентификатор найден. Возвращаю его");
+            inMemoryHistoryManager.add(storage.getSubTasks().get(id));
+            return storage.getSubTasks().get(id);
+        }
+        System.out.println("Ничего не найдено");
+        return null;
     }
     @Override
     public void createTask(Task task) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!storage.getTasks().containsKey(task.getId())) {
+        if (!storage.getTasks().containsKey(task.getId()) && timeValidator(task)) {
             storage.getTasks().put(task.getId(), task);
             System.out.println("Задача успешно занесена в программу");
         } else {
-            System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
+            System.out.println("Ой-ой. Похоже либо данный идентификатор уже занят. Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
     }
     @Override
     public void createEpic(Epic epic) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!storage.getEpics().containsKey(epic.getId())) {
+        if (!storage.getEpics().containsKey(epic.getId()) && timeValidator(epic)) {
             storage.getEpics().put(epic.getId(), epic);
             System.out.println("Задача успешно занесена в программу");
         } else {
-            System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
+            System.out.println("Ой-ой. Похоже данный идентификатор уже занят.Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
     }
     @Override
-    public void createSubTask(SubTask subTask) {
+    public void createSubTask(int id, SubTask subTask) {
         System.out.println("Начинаю заносить задачу в программу");
-        if (!storage.getSubTasks().containsKey(subTask.getId())) {
+        if (!storage.getSubTasks().containsKey(subTask.getId()) && timeValidator(subTask)) {
             storage.getSubTasks().put(subTask.getId(), subTask);
+
+            Epic epic = storage.getEpics().get(id);
+            epic.getSubTasks().add(subTask.getId());
+
+            epicTimeCorrector(id);
+
             System.out.println("Задача успешно занесена в программу");
         } else {
-            System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Попробуйте изменить входные данные");
+            System.out.println("Ой-ой. Похоже данный идентификатор уже занят. Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
-    }
-
-    public void addingSubTaskToEpic(int id, SubTask subTask){
-        Epic epic = storage.getEpics().get(id);
-        epic.getSubTasks().add(subTask.getId());
     }
     @Override
     public void updateTask(Task task, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (storage.getTasks().containsKey(oldId)) {
+        if (storage.getTasks().containsKey(oldId) && timeValidator(task)) {
             storage.getTasks().remove(oldId);
             storage.getTasks().put(task.getId(), task);
             System.out.println("Изменения занесены");
         } else {
-            System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
+            System.out.println("Хм... Что-то пошло не так. Может вы ввели не тот идентификатор? Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
     }
     @Override
     public void updateEpic(Epic epic, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (storage.getEpics().containsKey(oldId)) {
+        if (storage.getEpics().containsKey(oldId ) && timeValidator(epic)) {
             epic.setStatus(storage.getEpics().get(oldId).getStatus());
             for (Integer key: storage.getEpics().get(oldId).getSubTasks()) {
                 epic.getSubTasks().add(key);
@@ -159,32 +177,38 @@ public class InMemoryTaskManager implements TaskManager {
             storage.getEpics().put(epic.getId(), epic);
             System.out.println("Изменения занесены");
         } else {
-            System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
+            System.out.println("Хм... Что-то пошло не так. Может вы ввели не тот идентификатор? Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
     }
     @Override
-    public void updateSubTask(SubTask subTask, int oldId) {
+    public void updateSubTask(int id, SubTask subTask, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
-        if (storage.getSubTasks().containsKey(oldId)) {
+
+        if (storage.getSubTasks().containsKey(oldId) && timeValidator(subTask)) {
             storage.getSubTasks().remove(oldId);
             storage.getSubTasks().put(subTask.getId(), subTask);
+
+            Epic epic = storage.getEpics().get(id);
+            epic.getSubTasks().remove(Integer.valueOf(oldId));
+            epic.getSubTasks().add(subTask.getId());
+
+            epicTimeCorrector(id);
+
             System.out.println("Изменения занесены");
         } else {
-            System.out.println("Хм... Что-то мы не нашли объект для замены. Может вы ввели не тот идентификатор?");
+            System.out.println("Хм... Что-то пошло не так. Может вы ввели не тот идентификатор? Либо время, которое вы ввели, пересекается с временем другой задачи");
         }
     }
 
-    public void updatingSubTaskToEpic(int id, SubTask subTask, int oldId){
-        Epic epic = storage.getEpics().get(id);
-        epic.getSubTasks().remove(Integer.valueOf(oldId));
-        epic.getSubTasks().add(subTask.getId());
-    }
     @Override
     public void deleteTask(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
         if (storage.getTasks().containsKey(id)) {
+            Task task = storage.getTasks().get(id);
             storage.getTasks().remove(id);
-            inMemoryHistoryManager.remove(id);
+            if (inMemoryHistoryManager.getHistory().contains(task)){
+                inMemoryHistoryManager.remove(id);
+            }
             System.out.println("Задача удалена");
 
         } else {
@@ -194,9 +218,27 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpic(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
+        ArrayList<Integer> keys = new ArrayList<>();
         if (storage.getEpics().containsKey(id)) {
+            Epic epic = storage.getEpics().get(id);
             storage.getEpics().remove(id);
-            inMemoryHistoryManager.remove(id);
+            if (inMemoryHistoryManager.getHistory().contains(epic)){
+                inMemoryHistoryManager.remove(id);
+            }
+
+            for (Integer key : storage.getSubTasks().keySet()) {
+                if (storage.getSubTasks().get(key).getParentId() == id) {
+                    keys.add(key);
+                }
+            }
+            for (Integer key : keys) {
+                SubTask subTask = storage.getSubTasks().get(id);
+                storage.getSubTasks().remove(key);
+                if (inMemoryHistoryManager.getHistory().contains(subTask)){
+                    inMemoryHistoryManager.remove(key);
+                }
+            }
+
             System.out.println("Задача удалена");
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
@@ -206,24 +248,17 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubTask(int id) {
         System.out.println("Начинаю поиск элемента для удаления");
         if (storage.getSubTasks().containsKey(id)) {
+            SubTask subTask = storage.getSubTasks().get(id);
             storage.getSubTasks().remove(id);
-            inMemoryHistoryManager.remove(id);
+            if (inMemoryHistoryManager.getHistory().contains(subTask)){
+                inMemoryHistoryManager.remove(id);
+            }
+
+            storage.getEpics().get(subTask.getParentId()).getSubTasks().remove( (Integer) subTask.getId());
             System.out.println("Задача удалена");
+
         } else {
             System.out.println("Элемент для удаления не найден. Попробуйте ввести другой идентификатор");
-        }
-    }
-
-    public void deleteConnectedSubTasks(int id) {
-        ArrayList<Integer> keys = new ArrayList<>();
-        for (Integer key : storage.getSubTasks().keySet()) {
-            if (storage.getSubTasks().get(key).getParentId() == id) {
-                keys.add(key);
-            }
-        }
-        for (Integer key : keys) {
-            storage.getSubTasks().remove(key);
-            inMemoryHistoryManager.remove(key);
         }
     }
 
@@ -258,5 +293,45 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             storage.getEpics().get(epicId).setStatus(TaskStatus.NEW);
         }
+    }
+
+    private void epicTimeCorrector(int id) {
+        Epic epic = storage.getEpics().get(id);
+        LocalDateTime startTime = LocalDateTime.MAX;
+        LocalDateTime endTime = LocalDateTime.MIN;
+        for (Integer key : epic.getSubTasks()) {
+            if (storage.getSubTasks().get(key).getEndTime().isAfter(endTime)) {
+                endTime = storage.getSubTasks().get(key).getEndTime();
+                epic.setEndTime(storage.getSubTasks().get(key).getEndTime());
+            }
+            if (storage.getSubTasks().get(key).getStartTime().isBefore(startTime)){
+                epic.setStartTime(storage.getSubTasks().get(key).getStartTime());
+                startTime = storage.getSubTasks().get(key).getStartTime();
+            }
+        }
+        long duration = endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        epic.setDuration(duration/60000);
+        storage.getEpics().remove(epic.getId());
+        storage.getEpics().put(epic.getId(), epic);
+    }
+
+    public TreeSet<Task> getPrioritizedTasks(){
+        //Почему-то игнорирует последнюю строчку и не добавляет задачи в TreeSet. Причём если поменять местами, то всё равно не работает именно последняя строчка
+        TreeSet<Task> sortedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+        sortedTasks.addAll(storage.getTasks().values());
+        sortedTasks.addAll(storage.getSubTasks().values());
+        sortedTasks.addAll(storage.getEpics().values());
+        return sortedTasks;
+    }
+
+    private boolean timeValidator(Task task){
+        TreeSet<Task> sortedTasks = getPrioritizedTasks();
+        for (Task chosenTask : sortedTasks) {
+            if (chosenTask.getEndTime().isAfter(task.getStartTime())){
+                System.out.println("Время введённое вами пересекается с временем другой задачи");
+                return false;
+            }
+        }
+        return true;
     }
 }

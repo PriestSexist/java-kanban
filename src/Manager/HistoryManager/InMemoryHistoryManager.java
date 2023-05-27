@@ -4,7 +4,9 @@ import Tasks.Task;
 import Storage.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
@@ -12,28 +14,26 @@ public class InMemoryHistoryManager implements HistoryManager{
     private Node last = null;
     private int size = 0;
     private static final int MAX_SIZE = 10;
+    private final Map<Integer, Node> historyMap = new HashMap<>();
 
-    // Данный метод продекларирован в интерфейсе HistoryManager
     @Override
     public void add(Task task) {
-        if (size >= MAX_SIZE && historyMap.containsKey(task.getId())) {
+        if (size >= MAX_SIZE && !historyMap.containsKey(task.getId())) {
             removeNode(first);
             linkLast(task);
-        } else if (historyMap.containsKey(task.getId())) {
-            remove(task.getId());
+        } else if (size < MAX_SIZE && !historyMap.containsKey(task.getId())) {
             linkLast(task);
-        } else if (size < MAX_SIZE) {
+        } else {
+            remove(task.getId());
             linkLast(task);
         }
     }
 
-    // Данный метод продекларирован в интерфейсе HistoryManager
     @Override
     public void remove(int id) {
         removeNode(historyMap.get(id));
     }
 
-    // Данный метод продекларирован в интерфейсе HistoryManager
     @Override
     public List<Task> getHistory() {
         return getTasks();

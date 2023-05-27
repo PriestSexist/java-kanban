@@ -11,13 +11,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 
-public class FileBackedTasksManager extends InMemoryTaskManager {
+public class FileBackendTasksManager extends InMemoryTaskManager {
 
     private final String path;
 
-    public FileBackedTasksManager(String path) {
+    public FileBackendTasksManager(String path) {
         super(Managers.getDefaultHistory());
         this.path = path;
     }
@@ -35,14 +36,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createSubTask(SubTask subTask) {
-        super.createSubTask(subTask);
-        save();
-    }
-
-    @Override
-    public void addingSubTaskToEpic(int id, SubTask subTask) {
-        super.addingSubTaskToEpic(id, subTask);
+    public void createSubTask(int id, SubTask subTask) {
+        super.createSubTask(id, subTask);
         save();
     }
 
@@ -80,8 +75,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subTask, int oldId) {
-        super.updateSubTask(subTask, oldId);
+    public void updateSubTask(int id, SubTask subTask, int oldId) {
+        super.updateSubTask(id, subTask, oldId);
         save();
     }
 
@@ -103,6 +98,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
+    @Override
+    public void statusCheckerAndChanger(int epicId) {
+        super.statusCheckerAndChanger(epicId);
+        save();
+    }
+
     private void save () {
         Path pathToSave = Paths.get(path);
         try (Writer fileWriter = new FileWriter(path)) {
@@ -111,7 +112,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 Files.createFile(pathToSave);
             }
 
-            fileWriter.write("id,type,name,status,description,epic\n");
+            fileWriter.write("id,type,name,status,description,startTime,duration,endTime,epic\n");
 
             for (Integer key : getStorage().getTasks().keySet()) {
                 fileWriter.write(toString(getStorage().getTasks().get(key)));
@@ -131,30 +132,31 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    public static FileBackedTasksManager loadFromFile(String path){
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(path);
+    public static FileBackendTasksManager loadFromFile(String path){
+        FileBackendTasksManager fileBackendTasksManager = new FileBackendTasksManager(path);
         try (FileReader reader = new FileReader(path); BufferedReader buffer = new BufferedReader(reader)) {
             String line = buffer.readLine();
             while (buffer.ready()) {
                 line = buffer.readLine();
                 if (!line.equals("")) {
                     Task task = fromString(line);
-                    // switch case? Не совсем понимаю, как switch case можно использовать с instanceof
                     if (task instanceof Epic) {
-                        fileBackedTasksManager.getStorage().getEpics().put(task.getId(), (Epic) task);
+                        fileBackendTasksManager.getStorage().getEpics().put(task.getId(), (Epic) task);
                     } else if (task instanceof SubTask) {
-                        fileBackedTasksManager.getStorage().getSubTasks().put(task.getId(), (SubTask) task);
-                        Epic epic =  fileBackedTasksManager.getStorage().getEpics().get(((SubTask) task).getParentId());
+                        fileBackendTasksManager.getStorage().getSubTasks().put(task.getId(), (SubTask) task);
+                        Epic epic =  fileBackendTasksManager.getStorage().getEpics().get(((SubTask) task).getParentId());
                         epic.getSubTasks().add(task.getId());
                     } else {
-                        fileBackedTasksManager.getStorage().getTasks().put(task.getId(), task);
+                        fileBackendTasksManager.getStorage().getTasks().put(task.getId(), task);
                     }
                 } else {
                     line = buffer.readLine();
-                    historyFromString(line, fileBackedTasksManager);
+                    if (line != null) {
+                        historyFromString(line, fileBackendTasksManager);
+                    }
                 }
             }
-            return fileBackedTasksManager;
+            return fileBackendTasksManager;
         } catch (IOException e) {
             throw new ManagerSaveException("IO ошибка");
         }
@@ -162,44 +164,49 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private static String historyToString(){
         StringBuilder line = new StringBuilder();
-        for (Task task : inMemoryHistoryManager.getHistory()) {
-            line.append(task.getId()).append(", ");
+
+        if (inMemoryHistoryManager.getHistory().size()>=1) {
+            for (int i = 0; i < inMemoryHistoryManager.getHistory().size() - 1; i++) {
+                line.append(inMemoryHistoryManager.getHistory().get(i).getId()).append(", ");
+            }
+            line.append(inMemoryHistoryManager.getHistory().get(inMemoryHistoryManager.getHistory().size() - 1).getId());
+        } else {
+            line.append("");
         }
         return line.toString();
     }
 
-    private static void historyFromString(String value, FileBackedTasksManager fileBackedTasksManager){
+    private static void historyFromString(String value, FileBackendTasksManager fileBackendTasksManager){
         String[] lines = value.split(", ");
         for (String id : lines){
-            //switch case? Не совсем понимаю, как использовать тут switch case, где я проверяю наличие ключа в мапе
-            if (fileBackedTasksManager.getStorage().getTasks().containsKey(Integer.parseInt(id))){
-                inMemoryHistoryManager.add(fileBackedTasksManager.getStorage().getTasks().get(Integer.parseInt(id)));
-            } else if (fileBackedTasksManager.getStorage().getEpics().containsKey(Integer.parseInt(id))) {
-                inMemoryHistoryManager.add(fileBackedTasksManager.getStorage().getEpics().get(Integer.parseInt(id)));
-            } else {
-                inMemoryHistoryManager.add(fileBackedTasksManager.getStorage().getSubTasks().get(Integer.parseInt(id)));
+            if (fileBackendTasksManager.getStorage().getTasks().containsKey(Integer.parseInt(id))){
+                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getTasks().get(Integer.parseInt(id)));
+            } else if (fileBackendTasksManager.getStorage().getEpics().containsKey(Integer.parseInt(id))) {
+                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getEpics().get(Integer.parseInt(id)));
+            } else if (fileBackendTasksManager.getStorage().getSubTasks().containsKey(Integer.parseInt(id))){
+                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getSubTasks().get(Integer.parseInt(id)));
             }
         }
     }
 
     private String toString(Task task){
         if (task instanceof Epic){
-            return task.getId() + ", " + TaskType.EPIC + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
+            return task.getId() + ", " + TaskType.EPIC + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + task.getStartTime() + ", " + task.getDuration() + ", " + task.getEndTime() + "\n";
         } else if (task instanceof SubTask) {
-            return task.getId() + ", " + TaskType.SUBTASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + ((SubTask) task).getParentId() + "\n";
+            return task.getId() + ", " + TaskType.SUBTASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + task.getStartTime() + ", " + task.getDuration() + ", " + task.getEndTime() + ", " + ((SubTask) task).getParentId() + "\n";
         }
-        return task.getId() + ", " + TaskType.TASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + "\n";
+        return task.getId() + ", " + TaskType.TASK + ", " + task.getName() + ", " + task.getStatus() + ", " + task.getDescription() + ", " + task.getStartTime() + ", " + task.getDuration() + ", " + task.getEndTime() + "\n";
     }
 
     private static Task fromString(String value){
         String[] lines = value.split(", ");
         switch (Enum.valueOf(TaskType.class, lines[1])){
             case TASK :
-                return new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
+                return new Task(lines[2], lines[4], TaskStatus.valueOf(lines[3]), LocalDateTime.parse(lines[5]), Long.parseLong(lines[6]));
             case EPIC:
-                return new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]));
+                return new Epic(lines[2], lines[4], TaskStatus.valueOf(lines[3]), LocalDateTime.parse(lines[5]), Long.parseLong(lines[6]));
             case SUBTASK:
-                return new SubTask(lines[2], lines[4], Integer.parseInt(lines[5]), TaskStatus.valueOf(lines[3]));
+                return new SubTask(lines[2], lines[4], TaskStatus.valueOf(lines[3]), LocalDateTime.parse(lines[5]), Long.parseLong(lines[6]), Integer.parseInt(lines[8]));
         }
         return null;
     }

@@ -2,6 +2,7 @@ package Tasks;
 
 import Storage.TaskStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -9,8 +10,8 @@ public class Epic extends Task {
 
     private final ArrayList<Integer> subTasks;
 
-    public Epic(String name, String description, TaskStatus status) {
-        super(name, description, status);
+    public Epic(String name, String description, TaskStatus status, LocalDateTime startTime, long duration) {
+        super(name, description, status, startTime, duration);
         subTasks = new ArrayList<>();
     }
 

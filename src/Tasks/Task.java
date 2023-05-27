@@ -1,20 +1,28 @@
 package Tasks;
 
-import java.util.*;
 import Storage.TaskStatus;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Task {
     private final String name;
     private final String description;
     private final int id;
     private TaskStatus status;
+    private LocalDateTime startTime;
+    private long duration;
+    private LocalDateTime endTime;
 
-    public Task(String name, String description, TaskStatus status) {
+    public Task(String name, String description, TaskStatus status, LocalDateTime startTime, long duration) {
         this.name = name;
         this.description = description;
         this.id = hashCode();
         this.status = status;
-        System.out.println("Хеш код = " + id);
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = startTime.plusMinutes(duration);
+        //System.out.println("Хеш код = " + id);
     }
 
     public String getName() {
@@ -37,6 +45,30 @@ public class Task {
         return id;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,6 +86,7 @@ public class Task {
     @Override
     public String toString() {
         return "Название задачи - " + name + ", Описание задачи - " + description + ", Идентификатор задачи  - "
-                + id + ", Статус задачи - " + status;
+                + id + ", Статус задачи - " + status + ", время начала задачи " + startTime +
+                ", продолжительность задачи (в минутах) " + duration + ", время окончания задачи " + endTime;
     }
 }
