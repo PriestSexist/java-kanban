@@ -59,8 +59,6 @@ public class Main {
                     break;
                 case 2:
                     fileBackendTasksManager.deleteAllTasks();
-                    fileBackendTasksManager.deleteAllEpics();
-                    fileBackendTasksManager.deleteAllSubTasks();
                     break;
                 case 3:
                     System.out.println("Введите ID");
@@ -86,11 +84,10 @@ public class Main {
                     scanner.nextLine();
                     if (input == 1) {
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
-                                "3)Статус задачи 4)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 5)Продолжительность задачи (в минутах)");
+                                "3)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 4)Продолжительность задачи (в минутах)");
 
                         name = scanner.nextLine();
                         description = scanner.nextLine();
-                        status = scanner.nextLine();
                         startTime = scanner.nextLine();
                         duration = scanner.nextInt();
                         scanner.nextLine();
@@ -98,17 +95,16 @@ public class Main {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
-                        newTask = new Task(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration);
+                        newTask = new Task(name, description, localDateTimeStartTime, duration);
                         System.out.println(newTask);
                         fileBackendTasksManager.createTask(newTask);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
-                                "3)Статус задачи 4)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 5)Продолжительность задачи (в минутах)");
+                                "3)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 4)Продолжительность задачи (в минутах)");
 
                         name = scanner.nextLine();
                         description = scanner.nextLine();
-                        status = scanner.nextLine();
                         startTime = scanner.nextLine();
                         duration = scanner.nextInt();
                         scanner.nextLine();
@@ -116,7 +112,7 @@ public class Main {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
-                        newEpic = new Epic(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration);
+                        newEpic = new Epic(name, description, localDateTimeStartTime, duration);
                         fileBackendTasksManager.createEpic(newEpic);
                         break;
                     } else if (input == 3){
@@ -132,11 +128,10 @@ public class Main {
                         }
 
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
-                                "3)Статус задачи 4)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 5)Продолжительность задачи (в минутах)");
+                                "3)Время начала задачи (в формате dd.MM.yyyy, HH:mm) 4)Продолжительность задачи (в минутах)");
 
                         name = scanner.nextLine();
                         description = scanner.nextLine();
-                        status = scanner.nextLine();
                         startTime = scanner.nextLine();
                         duration = scanner.nextInt();
                         scanner.nextLine();
@@ -144,7 +139,7 @@ public class Main {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
-                        newSubTask = new SubTask(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration, id);
+                        newSubTask = new SubTask(name, description, localDateTimeStartTime, duration, id);
                         fileBackendTasksManager.createSubTask(id, newSubTask);
                         break;
                     } else {
@@ -225,7 +220,6 @@ public class Main {
                         newSubTask = new SubTask(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration, id);
                         fileBackendTasksManager.updateSubTask(id, newSubTask, oldId);
 
-                        fileBackendTasksManager.statusCheckerAndChanger(id);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -272,7 +266,7 @@ public class Main {
                     break;
                 case 8:
                     System.out.println("История: ");
-                    System.out.println(fileBackendTasksManager.getInMemoryHistoryManager().getHistory());
+                    System.out.println(fileBackendTasksManager.getInMemoryHistoryManager().getTasks());
                     break;
                 case 9:
                     System.out.println("Список задач в порядке приоритета: ");

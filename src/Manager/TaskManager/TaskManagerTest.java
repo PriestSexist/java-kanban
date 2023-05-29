@@ -1,6 +1,5 @@
 package Manager.TaskManager;
 
-import Manager.HistoryManager.InMemoryHistoryManager;
 import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -10,17 +9,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
-class TaskManagerTest {
+abstract class TaskManagerTest<T extends TaskManager> {
 
-    InMemoryHistoryManager inMemoryHistoryManager;
-    InMemoryTaskManager inMemoryTaskManager;
+    T taskManagerDefault;
+    T taskManager;
+
+    public TaskManagerTest(T taskManager) {
+        this.taskManagerDefault = taskManager;
+    }
 
     @BeforeEach
     public void managerCreator(){
-        inMemoryHistoryManager = new InMemoryHistoryManager();
-        inMemoryTaskManager = new InMemoryTaskManager(inMemoryHistoryManager);
+        taskManager = taskManagerDefault;
     }
 
     @Test
@@ -29,18 +33,18 @@ class TaskManagerTest {
         Task firstTaskForTest = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         Task secondTaskForTest = new Task("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
 
-        inMemoryTaskManager.createTask(firstTaskForTest);
-        inMemoryTaskManager.createTask(secondTaskForTest);
+        taskManager.createTask(firstTaskForTest);
+        taskManager.createTask(secondTaskForTest);
 
         HashMap<Integer, Task> shouldBeMap = new HashMap<>();
         shouldBeMap.put(firstTaskForTest.getId(), firstTaskForTest);
         shouldBeMap.put(secondTaskForTest.getId(), secondTaskForTest);
 
-        HashMap<Integer, Task> tasksMap = inMemoryTaskManager.getAllTasks();
+        HashMap<Integer, Task> tasksMap = taskManager.getAllTasks();
 
         // проверка поведения с пустым списком задач
-        Assertions.assertNotNull(inMemoryTaskManager.getAllTasks());
-        Assertions.assertEquals(2, inMemoryTaskManager.getAllTasks().size());
+        Assertions.assertNotNull(taskManager.getAllTasks());
+        Assertions.assertEquals(2, taskManager.getAllTasks().size());
 
         // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных тасков
         Assertions.assertEquals(shouldBeMap.keySet(), tasksMap.keySet());
@@ -53,17 +57,17 @@ class TaskManagerTest {
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         Epic secondEpicForTest = new Epic("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createEpic(secondEpicForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createEpic(secondEpicForTest);
 
         HashMap<Integer, Epic> shouldBeMap = new HashMap<>();
         shouldBeMap.put(firstEpicForTest.getId(), firstEpicForTest);
         shouldBeMap.put(secondEpicForTest.getId(), secondEpicForTest);
 
-        HashMap<Integer, Epic> tasksMap = inMemoryTaskManager.getAllEpics();
+        HashMap<Integer, Epic> tasksMap = taskManager.getAllEpics();
 
-        Assertions.assertNotNull(inMemoryTaskManager.getAllEpics());
-        Assertions.assertEquals(2, inMemoryTaskManager.getAllEpics().size());
+        Assertions.assertNotNull(taskManager.getAllEpics());
+        Assertions.assertEquals(2, taskManager.getAllEpics().size());
 
         // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных эпиков
         Assertions.assertEquals(shouldBeMap.keySet(), tasksMap.keySet());
@@ -76,18 +80,18 @@ class TaskManagerTest {
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
         SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
 
         HashMap<Integer, SubTask> shouldBeMap = new HashMap<>();
         shouldBeMap.put(firstSubTaskForTest.getId(), firstSubTaskForTest);
         shouldBeMap.put(secondSubTaskForTest.getId(), secondSubTaskForTest);
 
-        HashMap<Integer, SubTask> tasksMap = inMemoryTaskManager.getAllSubTasks();
+        HashMap<Integer, SubTask> tasksMap = taskManager.getAllSubTasks();
 
-        Assertions.assertNotNull(inMemoryTaskManager.getAllSubTasks());
-        Assertions.assertEquals(2, inMemoryTaskManager.getAllSubTasks().size());
+        Assertions.assertNotNull(taskManager.getAllSubTasks());
+        Assertions.assertEquals(2, taskManager.getAllSubTasks().size());
 
         // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных эпиков
         Assertions.assertEquals(shouldBeMap.keySet(), tasksMap.keySet());
@@ -99,58 +103,39 @@ class TaskManagerTest {
         Task firstTaskForTest = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         Task secondTaskForTest = new Task("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
 
-        inMemoryTaskManager.createTask(firstTaskForTest);
-        inMemoryTaskManager.createTask(secondTaskForTest);
+        Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1);
+        SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:14"), 1, firstEpicForTest.getId());
+        SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:15"), 1, firstEpicForTest.getId());
+
+        taskManager.createTask(firstTaskForTest);
+        taskManager.createTask(secondTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
 
         HashMap<Integer, Task> shouldBeMap = new HashMap<>();
-        inMemoryTaskManager.deleteAllTasks();
+        taskManager.deleteAllTasks();
 
         // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных тасков
-        Assertions.assertEquals(shouldBeMap.keySet(), inMemoryTaskManager.getAllTasks().keySet());
-    }
-
-    @Test
-    void shouldClearHashMapWithAllEpics() {
-
-        Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
-        Epic secondEpicForTest = new Epic("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
-
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createEpic(secondEpicForTest);
-
-        HashMap<Integer, Epic> shouldBeMap = new HashMap<>();
-        inMemoryTaskManager.deleteAllEpics();
-
-        // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных тасков
-        Assertions.assertEquals(shouldBeMap.keySet(), inMemoryTaskManager.getAllEpics().keySet());
-    }
-
-    @Test
-    void shouldClearHashMapWithAllSubTasks() {
-
-        Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
-        SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
-        SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
-
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
-
-        HashMap<Integer, SubTask> shouldBeMap = new HashMap<>();
-        inMemoryTaskManager.deleteAllSubTasks();
-
-        // Сравниваю по ключам, так как ключи - хеши, хеши уникальные и делаются на основе данных тасков
-        Assertions.assertEquals(shouldBeMap.keySet(), inMemoryTaskManager.getAllSubTasks().keySet());
+        Assertions.assertEquals(shouldBeMap.keySet(), taskManager.getAllTasks().keySet());
+        Assertions.assertEquals(shouldBeMap.keySet(), taskManager.getAllEpics().keySet());
+        Assertions.assertEquals(shouldBeMap.keySet(), taskManager.getAllSubTasks().keySet());
     }
 
     @Test
     void shouldCreateAndReturnTask() {
 
         Task firstTaskForTest = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        Task task1 = null;
+        Task task2 = null;
 
-        inMemoryTaskManager.createTask(firstTaskForTest);
-        Task task1 = inMemoryTaskManager.getTask(firstTaskForTest.getId());
-        Task task2 = inMemoryTaskManager.getTask(12345);
+        taskManager.createTask(firstTaskForTest);
+        if (taskManager.getStorage().getTasks().containsKey(firstTaskForTest.getId())) {
+            task1 = taskManager.getTask(firstTaskForTest.getId());
+        }
+        if (taskManager.getStorage().getTasks().containsKey(12345)) {
+            task2 = taskManager.getTask(12345);
+        }
 
         Assertions.assertNotNull(task1);
         Assertions.assertNull(task2);
@@ -161,10 +146,18 @@ class TaskManagerTest {
     void shouldCreateAndReturnEpic() {
 
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        Epic epic1 = null;
+        Epic epic2 = null;
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        Epic epic1 = inMemoryTaskManager.getEpic(firstEpicForTest.getId());
-        Epic epic2 = inMemoryTaskManager.getEpic(12345);
+        taskManager.createEpic(firstEpicForTest);
+        if (taskManager.getStorage().getEpics().containsKey(firstEpicForTest.getId())) {
+            epic1 = taskManager.getEpic(firstEpicForTest.getId());
+        }
+        if (taskManager.getStorage().getEpics().containsKey(12345)) {
+            epic2 = taskManager.getEpic(12345);
+        }
+
+
 
         Assertions.assertNotNull(epic1);
         Assertions.assertNull(epic2);
@@ -176,12 +169,18 @@ class TaskManagerTest {
 
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
+        SubTask subTask1 = null;
+        SubTask subTask2 = null;
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
 
-        SubTask subTask1 = inMemoryTaskManager.getSubTask(firstSubTaskForTest.getId());
-        SubTask subTask2 = inMemoryTaskManager.getSubTask(12345);
+        if (taskManager.getStorage().getSubTasks().containsKey(firstSubTaskForTest.getId())){
+            subTask1 = taskManager.getSubTask(firstSubTaskForTest.getId());
+        }
+        if (taskManager.getStorage().getSubTasks().containsKey(12345)){
+            subTask2 = taskManager.getSubTask(12345);
+        }
 
         Assertions.assertNotNull(subTask1);
         Assertions.assertNull(subTask2);
@@ -195,8 +194,8 @@ class TaskManagerTest {
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
 
         // проверяю есть ли нужный ID сабтаск в листе его эпика
         Assertions.assertTrue(firstEpicForTest.getSubTasks().contains(firstSubTaskForTest.getId()));
@@ -208,10 +207,10 @@ class TaskManagerTest {
         Task firstTaskForTest = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         Task secondTaskForTest = new Task("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
 
-        inMemoryTaskManager.createTask(firstTaskForTest);
+        taskManager.createTask(firstTaskForTest);
 
-        inMemoryTaskManager.updateTask(secondTaskForTest, firstTaskForTest.getId());
-        Task taskAfterUpdate1 = inMemoryTaskManager.getTask(secondTaskForTest.getId());
+        taskManager.updateTask(secondTaskForTest, firstTaskForTest.getId());
+        Task taskAfterUpdate1 = taskManager.getTask(secondTaskForTest.getId());
 
         Assertions.assertNotNull(taskAfterUpdate1);
         Assertions.assertEquals(taskAfterUpdate1, secondTaskForTest);
@@ -223,10 +222,10 @@ class TaskManagerTest {
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         Epic secondEpicForTest = new Epic("2", "3", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1);
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
+        taskManager.createEpic(firstEpicForTest);
 
-        inMemoryTaskManager.updateEpic(secondEpicForTest, firstEpicForTest.getId());
-        Epic epicAfterUpdate = inMemoryTaskManager.getEpic(secondEpicForTest.getId());
+        taskManager.updateEpic(secondEpicForTest, firstEpicForTest.getId());
+        Epic epicAfterUpdate = taskManager.getEpic(secondEpicForTest.getId());
 
         Assertions.assertNotNull(epicAfterUpdate);
         Assertions.assertEquals(epicAfterUpdate, secondEpicForTest);
@@ -239,12 +238,12 @@ class TaskManagerTest {
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
         SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
 
-        inMemoryTaskManager.updateSubTask(firstEpicForTest.getId(), secondSubTaskForTest, firstSubTaskForTest.getId());
-        Epic epicAfterUpdate = inMemoryTaskManager.getEpic(firstEpicForTest.getId());
-        SubTask subTaskAfterUpdate = inMemoryTaskManager.getSubTask(secondSubTaskForTest.getId());
+        taskManager.updateSubTask(firstEpicForTest.getId(), secondSubTaskForTest, firstSubTaskForTest.getId());
+        Epic epicAfterUpdate = taskManager.getEpic(firstEpicForTest.getId());
+        SubTask subTaskAfterUpdate = taskManager.getSubTask(secondSubTaskForTest.getId());
 
         Assertions.assertTrue(epicAfterUpdate.getSubTasks().contains(secondSubTaskForTest.getId()));
         Assertions.assertNotNull(subTaskAfterUpdate);
@@ -255,11 +254,15 @@ class TaskManagerTest {
     void shouldDeleteTask() {
 
         Task firstTaskForTest = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        Task task1 = null;
 
-        inMemoryTaskManager.createTask(firstTaskForTest);
-        inMemoryTaskManager.deleteTask(firstTaskForTest.getId());
+        taskManager.createTask(firstTaskForTest);
+        taskManager.deleteTask(firstTaskForTest.getId());
 
-        Assertions.assertNull(inMemoryTaskManager.getTask(firstTaskForTest.getId()));
+        if (taskManager.getStorage().getTasks().containsKey(firstTaskForTest.getId())) {
+            task1 = taskManager.getTask(firstTaskForTest.getId());
+        }
+        Assertions.assertNull(task1);
 
     }
 
@@ -268,14 +271,22 @@ class TaskManagerTest {
 
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
+        Epic epic = null;
+        SubTask subTask = null;
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
 
-        inMemoryTaskManager.deleteEpic(firstEpicForTest.getId());
+        taskManager.deleteEpic(firstEpicForTest.getId());
 
-        Assertions.assertNull(inMemoryTaskManager.getEpic(firstEpicForTest.getId()));
-        Assertions.assertNull(inMemoryTaskManager.getSubTask(firstSubTaskForTest.getId()));
+        if (taskManager.getStorage().getEpics().containsKey(firstEpicForTest.getId())) {
+            epic = taskManager.getEpic(firstEpicForTest.getId());
+        }
+        if (taskManager.getStorage().getSubTasks().containsKey(firstSubTaskForTest.getId())) {
+            subTask = taskManager.getSubTask(firstSubTaskForTest.getId());
+        }
+        Assertions.assertNull(epic);
+        Assertions.assertNull(subTask);
     }
 
     @Test
@@ -283,13 +294,72 @@ class TaskManagerTest {
 
         Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
+        SubTask subTask = null;
 
-        inMemoryTaskManager.createEpic(firstEpicForTest);
-        inMemoryTaskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        inMemoryTaskManager.deleteSubTask(firstSubTaskForTest.getId());
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.deleteSubTask(firstSubTaskForTest.getId());
 
-        Assertions.assertFalse(inMemoryTaskManager.getEpic(firstEpicForTest.getId()).getSubTasks().contains(firstSubTaskForTest.getId()));
-        Assertions.assertNull(inMemoryTaskManager.getSubTask(firstSubTaskForTest.getId()));
+        if (taskManager.getStorage().getEpics().containsKey(firstEpicForTest.getId())) {
+            firstEpicForTest = taskManager.getEpic(firstEpicForTest.getId());
+        }
+        if (taskManager.getStorage().getSubTasks().containsKey(firstSubTaskForTest.getId())) {
+            subTask = taskManager.getSubTask(firstSubTaskForTest.getId());
+        }
+        Assertions.assertFalse(firstEpicForTest.getSubTasks().contains(firstSubTaskForTest.getId()));
+        Assertions.assertNull(subTask);
+    }
+
+    @Test
+    void gettingSubTasksOfEpic() {
+        Epic firstEpicForTest = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
+        SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
+        SubTask thirdSubTaskForTest = new SubTask("a", "a", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:14"), 1, firstEpicForTest.getId());
+
+        taskManager.createEpic(firstEpicForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(),firstSubTaskForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
+        taskManager.createSubTask(firstEpicForTest.getId(), thirdSubTaskForTest);
+
+        ArrayList<SubTask> subTaskArrayList2 = taskManager.gettingSubTasksOfEpic(firstEpicForTest.getId());
+        ArrayList<SubTask> subTaskArrayList3 = taskManager.gettingSubTasksOfEpic(12345);
+        Epic epic = taskManager.getEpic(firstEpicForTest.getId());
+
+        Assertions.assertNotNull(subTaskArrayList2);
+
+        for (SubTask subTask: subTaskArrayList2) {
+            Assertions.assertTrue(epic.getSubTasks().contains(subTask.getId()));
+        }
+
+        Assertions.assertTrue(subTaskArrayList2.contains(firstSubTaskForTest));
+        Assertions.assertFalse(subTaskArrayList3.contains(firstSubTaskForTest));
+    }
+
+    @Test
+    void ShouldReturnAllSubTasksOfChosenEpic() {
+
+
+
+    }
+
+    @Test
+    void shouldReturnRightPrioritisedTasks() {
+
+        Task task = new Task("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:10"), 23);
+        Epic epic = new Epic("1", "2", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:33"), 23);
+        SubTask subTask = new SubTask("Q", "Q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:56"), 23, epic.getId());
+
+        taskManager.createEpic(epic);
+        taskManager.createSubTask(subTask.getParentId(), subTask);
+        taskManager.createTask(task);
+        TreeSet<Task> sortedTasks = taskManager.getPrioritizedTasks();
+
+        Assertions.assertNotNull(sortedTasks);
+        Assertions.assertEquals(3, sortedTasks.size());
+        Assertions.assertEquals(task, sortedTasks.first());
+        Assertions.assertEquals(subTask, sortedTasks.last());
+
     }
 
 

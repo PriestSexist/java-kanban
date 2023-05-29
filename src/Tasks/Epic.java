@@ -10,6 +10,11 @@ public class Epic extends Task {
 
     private final ArrayList<Integer> subTasks;
 
+    public Epic(String name, String description, LocalDateTime startTime, long duration) {
+        super(name, description, startTime, duration);
+        subTasks = new ArrayList<>();
+    }
+
     public Epic(String name, String description, TaskStatus status, LocalDateTime startTime, long duration) {
         super(name, description, status, startTime, duration);
         subTasks = new ArrayList<>();

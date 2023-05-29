@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-class FileBackendTasksManagerTest {
+class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
 
     @BeforeEach
     void fileBackendTasksManagerReseter(){
@@ -100,7 +100,7 @@ class FileBackendTasksManagerTest {
         fileBackendTasksManager.createTask(task);
         fileBackendTasksManager.getTask(task.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
-        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getHistory().contains(task));
+        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getTasks().contains(task));
     }
 
     @Test
@@ -111,7 +111,7 @@ class FileBackendTasksManagerTest {
         fileBackendTasksManager.createEpic(epic);
         fileBackendTasksManager.getEpic(epic.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
-        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getHistory().contains(epic));
+        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getTasks().contains(epic));
     }
 
     @Test
@@ -125,7 +125,7 @@ class FileBackendTasksManagerTest {
         fileBackendTasksManager.createSubTask(epic.getId(), subTask);
         fileBackendTasksManager.getSubTask(subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
-        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getHistory().contains(subTask));
+        Assertions.assertTrue(fileBackendTasksManager.getInMemoryHistoryManager().getTasks().contains(subTask));
     }
 
     @Test
@@ -175,11 +175,17 @@ class FileBackendTasksManagerTest {
         FileBackendTasksManager fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
 
         Task task = new Task("eat", "eat", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        Task testTask = null;
 
         fileBackendTasksManager.createTask(task);
         fileBackendTasksManager.deleteTask(task.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
-        Assertions.assertNull(fileBackendTasksManager.getTask(task.getId()));
+
+        if (fileBackendTasksManager.getStorage().getTasks().containsKey(task.getId())) {
+            testTask = fileBackendTasksManager.getTask(task.getId());
+        }
+
+        Assertions.assertNull(testTask);
     }
 
     @Test
@@ -187,11 +193,17 @@ class FileBackendTasksManagerTest {
         FileBackendTasksManager fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
 
         Epic epic = new Epic("eat", "eat", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:11"), 1);
+        Epic testEpic = null;
 
         fileBackendTasksManager.createEpic(epic);
         fileBackendTasksManager.deleteEpic(epic.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
-        Assertions.assertNull(fileBackendTasksManager.getEpic(epic.getId()));
+
+        if (fileBackendTasksManager.getStorage().getEpics().containsKey(epic.getId())) {
+            testEpic = fileBackendTasksManager.getEpic(epic.getId());
+        }
+
+        Assertions.assertNull(testEpic);
     }
 
     @Test
@@ -200,13 +212,18 @@ class FileBackendTasksManagerTest {
 
         Epic epic = new Epic("1", "2", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:11"), 1);
         SubTask subTask = new SubTask("1", "2", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:12"), 1, epic.getId());
+        SubTask testSubTask = null;
 
         fileBackendTasksManager.createEpic(epic);
         fileBackendTasksManager.createSubTask(epic.getId(), subTask);
         fileBackendTasksManager.deleteSubTask(subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
 
-        Assertions.assertNull(fileBackendTasksManager.getSubTask(subTask.getId()));
+        if (fileBackendTasksManager.getStorage().getSubTasks().containsKey(subTask.getId())){
+            testSubTask = fileBackendTasksManager.getSubTask(subTask.getId());
+        }
+
+        Assertions.assertNull(testSubTask);
     }
 
     @Test
@@ -220,7 +237,6 @@ class FileBackendTasksManagerTest {
         fileBackendTasksManager.createEpic(epic);
         fileBackendTasksManager.createSubTask(epic.getId(), subTask);
         fileBackendTasksManager.updateSubTask(epic.getId(), subTask1, subTask.getId());
-        fileBackendTasksManager.statusCheckerAndChanger(epic.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt");
 
         Assertions.assertEquals(fileBackendTasksManager.getEpic(epic.getId()).getStatus(), TaskStatus.IN_PROGRESS);

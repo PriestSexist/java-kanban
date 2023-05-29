@@ -14,6 +14,16 @@ public class Task {
     private long duration;
     private LocalDateTime endTime;
 
+    public Task(String name, String description, LocalDateTime startTime, long duration) {
+        this.name = name;
+        this.description = description;
+        this.id = hashCode();
+        this.status = TaskStatus.NEW;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = startTime.plusMinutes(duration);
+        //System.out.println("Хеш код = " + id);
+    }
     public Task(String name, String description, TaskStatus status, LocalDateTime startTime, long duration) {
         this.name = name;
         this.description = description;
@@ -57,12 +67,10 @@ public class Task {
         return endTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setTime(LocalDateTime startTime, long duration) {
         this.startTime = startTime;
-    }
-
-    public void setDuration(long duration) {
         this.duration = duration;
+        setEndTime(startTime.plusMinutes(duration));
     }
 
     public void setEndTime(LocalDateTime endTime) {

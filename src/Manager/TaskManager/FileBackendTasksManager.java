@@ -99,10 +99,11 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void statusCheckerAndChanger(int epicId) {
-        super.statusCheckerAndChanger(epicId);
+    public void deleteAllTasks() {
+        super.deleteAllTasks();
         save();
     }
+
 
     private void save () {
         Path pathToSave = Paths.get(path);
@@ -165,11 +166,11 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     private static String historyToString(){
         StringBuilder line = new StringBuilder();
 
-        if (inMemoryHistoryManager.getHistory().size()>=1) {
-            for (int i = 0; i < inMemoryHistoryManager.getHistory().size() - 1; i++) {
-                line.append(inMemoryHistoryManager.getHistory().get(i).getId()).append(", ");
+        if (inMemoryHistoryManager.getTasks().size()>=1) {
+            for (int i = 0; i < inMemoryHistoryManager.getTasks().size() - 1; i++) {
+                line.append(inMemoryHistoryManager.getTasks().get(i).getId()).append(", ");
             }
-            line.append(inMemoryHistoryManager.getHistory().get(inMemoryHistoryManager.getHistory().size() - 1).getId());
+            line.append(inMemoryHistoryManager.getTasks().get(inMemoryHistoryManager.getTasks().size() - 1).getId());
         } else {
             line.append("");
         }

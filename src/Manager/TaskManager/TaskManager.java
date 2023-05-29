@@ -1,12 +1,20 @@
 package Manager.TaskManager;
 
+import Manager.HistoryManager.HistoryManager;
+import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public interface TaskManager {
+
+    HistoryManager getInMemoryHistoryManager();
+
+    Storage getStorage();
 
     HashMap<Integer, Task> getAllTasks();
 
@@ -15,10 +23,6 @@ public interface TaskManager {
     HashMap<Integer, SubTask> getAllSubTasks();
 
     void deleteAllTasks();
-
-    void deleteAllEpics();
-
-    void deleteAllSubTasks();
 
     Task getTask(int id);
 
@@ -43,6 +47,10 @@ public interface TaskManager {
     void deleteEpic(int id);
 
     void deleteSubTask(int id);
+
+    ArrayList<SubTask> gettingSubTasksOfEpic(int id);
+
+    TreeSet<Task> getPrioritizedTasks();
 
 
 }

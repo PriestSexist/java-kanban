@@ -28,7 +28,7 @@ class InMemoryHistoryManagerTest {
 
         inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task.getId()));
         inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task.getId()));
-        List<Task> history = inMemoryHistoryManager.getHistory();
+        List<Task> history = inMemoryHistoryManager.getTasks();
 
         Assertions.assertNotNull(history);
         Assertions.assertTrue(history.contains(task));
@@ -57,7 +57,7 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task5.getId()));
 
         inMemoryHistoryManager.remove(task5.getId());
-        List<Task> history = inMemoryHistoryManager.getHistory();
+        List<Task> history = inMemoryHistoryManager.getTasks();
 
         Assertions.assertNotNull(history);
         Assertions.assertFalse(history.contains(task5));
@@ -65,7 +65,7 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task5.getId()));
 
         inMemoryHistoryManager.remove(task3.getId());
-        history = inMemoryHistoryManager.getHistory();
+        history = inMemoryHistoryManager.getTasks();
 
         Assertions.assertNotNull(history);
         Assertions.assertFalse(history.contains(task3));
@@ -73,7 +73,7 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task3.getId()));
 
         inMemoryHistoryManager.remove(task1.getId());
-        history = inMemoryHistoryManager.getHistory();
+        history = inMemoryHistoryManager.getTasks();
 
         Assertions.assertNotNull(history);
         Assertions.assertFalse(history.contains(task1));

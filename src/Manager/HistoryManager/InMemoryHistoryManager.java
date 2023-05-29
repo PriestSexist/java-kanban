@@ -1,11 +1,10 @@
 package Manager.HistoryManager;
 
-import Tasks.Task;
 import Storage.Node;
+import Tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager{
@@ -35,8 +34,11 @@ public class InMemoryHistoryManager implements HistoryManager{
     }
 
     @Override
-    public List<Task> getHistory() {
-        return getTasks();
+    public void removeAll() {
+        historyMap.clear();
+        first = null;
+        last = null;
+        size = 0;
     }
 
     private void linkLast(Task task) {
@@ -54,7 +56,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         size++;
     }
 
-    private ArrayList<Task> getTasks(){
+    public ArrayList<Task> getTasks(){
         ArrayList<Task> tasks = new ArrayList<>();
         if (last != null){
             Node newFirst = first;
