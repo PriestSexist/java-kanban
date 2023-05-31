@@ -1,7 +1,8 @@
 package Manager.TaskManager;
 
 import Manager.Exceptions.ManagerSaveException;
-import Manager.Managers;
+import Manager.HistoryManager.InMemoryHistoryManager;
+import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -18,8 +19,8 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
 
     private final String path;
 
-    public FileBackendTasksManager(String path) {
-        super(Managers.getDefaultHistory());
+    public FileBackendTasksManager(InMemoryHistoryManager inMemoryHistoryManager, String path, Storage storage) {
+        super(inMemoryHistoryManager, storage);
         this.path = path;
     }
 
@@ -115,26 +116,27 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
 
             fileWriter.write("id,type,name,status,description,startTime,duration,endTime,epic\n");
 
-            for (Integer key : getStorage().getTasks().keySet()) {
-                fileWriter.write(toString(getStorage().getTasks().get(key)));
+            for (Integer key : storage.getTasks().keySet()) {
+                fileWriter.write(toString(storage.getTasks().get(key)));
             }
-            for (Integer key : getStorage().getEpics().keySet()) {
-                fileWriter.write(toString(getStorage().getEpics().get(key)));
-                for (Integer i : getStorage().getEpics().get(key).getSubTasks()) {
-                    fileWriter.write(toString(getStorage().getSubTasks().get(i)));
+            for (Integer key : storage.getEpics().keySet()) {
+                fileWriter.write(toString(storage.getEpics().get(key)));
+                for (Integer i : storage.getEpics().get(key).getSubTasks()) {
+                    fileWriter.write(toString(storage.getSubTasks().get(i)));
                 }
             }
 
             fileWriter.write("\n");
-            fileWriter.write(historyToString());
+            // тут я беру унаследованную историю, так как мы её переводим в файл, а в остальных случаях, я передаю историю, в которую вношу изменения
+            fileWriter.write(historyToString((InMemoryHistoryManager) inMemoryHistoryManager));
 
         } catch (IOException e) {
             throw new ManagerSaveException("IO ошибка");
         }
     }
 
-    public static FileBackendTasksManager loadFromFile(String path){
-        FileBackendTasksManager fileBackendTasksManager = new FileBackendTasksManager(path);
+    public static FileBackendTasksManager loadFromFile(String path, InMemoryHistoryManager inMemoryHistoryManager, Storage storage){
+        FileBackendTasksManager fileBackendTasksManager = new FileBackendTasksManager(inMemoryHistoryManager, path, storage);
         try (FileReader reader = new FileReader(path); BufferedReader buffer = new BufferedReader(reader)) {
             String line = buffer.readLine();
             while (buffer.ready()) {
@@ -142,18 +144,19 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
                 if (!line.equals("")) {
                     Task task = fromString(line);
                     if (task instanceof Epic) {
-                        fileBackendTasksManager.getStorage().getEpics().put(task.getId(), (Epic) task);
+                        storage.getEpics().put(task.getId(), (Epic) task);
                     } else if (task instanceof SubTask) {
-                        fileBackendTasksManager.getStorage().getSubTasks().put(task.getId(), (SubTask) task);
-                        Epic epic =  fileBackendTasksManager.getStorage().getEpics().get(((SubTask) task).getParentId());
+                        storage.getSubTasks().put(task.getId(), (SubTask) task);
+                        Epic epic =  storage.getEpics().get(((SubTask) task).getParentId());
                         epic.getSubTasks().add(task.getId());
                     } else {
-                        fileBackendTasksManager.getStorage().getTasks().put(task.getId(), task);
+                        storage.getTasks().put(task.getId(), task);
                     }
+                    sortedTasks.add(task);
                 } else {
                     line = buffer.readLine();
                     if (line != null) {
-                        historyFromString(line, fileBackendTasksManager);
+                        historyFromString(line, inMemoryHistoryManager, storage);
                     }
                 }
             }
@@ -163,7 +166,7 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private static String historyToString(){
+    private static String historyToString(InMemoryHistoryManager inMemoryHistoryManager){
         StringBuilder line = new StringBuilder();
 
         if (inMemoryHistoryManager.getTasks().size()>=1) {
@@ -177,15 +180,15 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
         return line.toString();
     }
 
-    private static void historyFromString(String value, FileBackendTasksManager fileBackendTasksManager){
+    private static void historyFromString(String value, InMemoryHistoryManager inMemoryHistoryManager, Storage storage){
         String[] lines = value.split(", ");
         for (String id : lines){
-            if (fileBackendTasksManager.getStorage().getTasks().containsKey(Integer.parseInt(id))){
-                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getTasks().get(Integer.parseInt(id)));
-            } else if (fileBackendTasksManager.getStorage().getEpics().containsKey(Integer.parseInt(id))) {
-                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getEpics().get(Integer.parseInt(id)));
-            } else if (fileBackendTasksManager.getStorage().getSubTasks().containsKey(Integer.parseInt(id))){
-                inMemoryHistoryManager.add(fileBackendTasksManager.getStorage().getSubTasks().get(Integer.parseInt(id)));
+            if (storage.getTasks().containsKey(Integer.parseInt(id))){
+                inMemoryHistoryManager.add(storage.getTasks().get(Integer.parseInt(id)));
+            } else if (storage.getEpics().containsKey(Integer.parseInt(id))) {
+                inMemoryHistoryManager.add(storage.getEpics().get(Integer.parseInt(id)));
+            } else if (storage.getSubTasks().containsKey(Integer.parseInt(id))){
+                inMemoryHistoryManager.add(storage.getSubTasks().get(Integer.parseInt(id)));
             }
         }
     }

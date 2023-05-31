@@ -1,7 +1,5 @@
 package Manager.TaskManager;
 
-import Manager.HistoryManager.HistoryManager;
-import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -11,10 +9,6 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 public interface TaskManager {
-
-    HistoryManager getInMemoryHistoryManager();
-
-    Storage getStorage();
 
     HashMap<Integer, Task> getAllTasks();
 

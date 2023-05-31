@@ -1,6 +1,7 @@
 package Manager.HistoryManager;
 
 import Manager.TaskManager.InMemoryTaskManager;
+import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Task;
 import org.junit.jupiter.api.Assertions;
@@ -12,12 +13,13 @@ import java.util.List;
 
 class InMemoryHistoryManagerTest {
 
+    Storage storage = new Storage();
     InMemoryTaskManager inMemoryTaskManager;
     InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
 
     @BeforeEach
     public void managerCreator(){
-        inMemoryTaskManager = new InMemoryTaskManager(inMemoryHistoryManager);
+        inMemoryTaskManager = new InMemoryTaskManager(inMemoryHistoryManager, storage);
     }
 
     @Test
@@ -26,8 +28,8 @@ class InMemoryHistoryManagerTest {
 
         inMemoryTaskManager.createTask(task);
 
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task.getId()));
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task.getId()));
         List<Task> history = inMemoryHistoryManager.getTasks();
 
         Assertions.assertNotNull(history);
@@ -50,11 +52,11 @@ class InMemoryHistoryManagerTest {
         inMemoryTaskManager.createTask(task4);
         inMemoryTaskManager.createTask(task5);
 
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task1.getId()));
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task2.getId()));
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task3.getId()));
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task4.getId()));
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task5.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task1.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task2.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task3.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task4.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task5.getId()));
 
         inMemoryHistoryManager.remove(task5.getId());
         List<Task> history = inMemoryHistoryManager.getTasks();
@@ -62,7 +64,7 @@ class InMemoryHistoryManagerTest {
         Assertions.assertNotNull(history);
         Assertions.assertFalse(history.contains(task5));
 
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task5.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task5.getId()));
 
         inMemoryHistoryManager.remove(task3.getId());
         history = inMemoryHistoryManager.getTasks();
@@ -70,7 +72,7 @@ class InMemoryHistoryManagerTest {
         Assertions.assertNotNull(history);
         Assertions.assertFalse(history.contains(task3));
 
-        inMemoryHistoryManager.add(inMemoryTaskManager.getStorage().getTasks().get(task3.getId()));
+        inMemoryHistoryManager.add(storage.getTasks().get(task3.getId()));
 
         inMemoryHistoryManager.remove(task1.getId());
         history = inMemoryHistoryManager.getTasks();

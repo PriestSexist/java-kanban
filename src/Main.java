@@ -1,4 +1,7 @@
+import Manager.HistoryManager.InMemoryHistoryManager;
+import Manager.Managers;
 import Manager.TaskManager.FileBackendTasksManager;
+import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -19,8 +22,9 @@ public class Main {
         int input;
 
         // InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
-        // InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
-        FileBackendTasksManager fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/save.txt");
+        Storage storage = new Storage();
+        InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
+        FileBackendTasksManager fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/save.txt", inMemoryHistoryManager, storage);
 
         Task newTask;
         Epic newEpic;
@@ -42,18 +46,18 @@ public class Main {
 
             switch (command){
                 case 1:
-                    if (!fileBackendTasksManager.getStorage().getTasks().isEmpty()) {
+                    if (!storage.getTasks().isEmpty()) {
                         fileBackendTasksManager.getAllTasks();
                     }
-                    if (!fileBackendTasksManager.getStorage().getEpics().isEmpty()) {
+                    if (!storage.getEpics().isEmpty()) {
                         fileBackendTasksManager.getAllEpics();
                     }
-                    if (!fileBackendTasksManager.getStorage().getSubTasks().isEmpty()){
+                    if (!storage.getSubTasks().isEmpty()){
                         fileBackendTasksManager.getAllSubTasks();
                     }
-                    if (fileBackendTasksManager.getStorage().getTasks().isEmpty() &&
-                            fileBackendTasksManager.getStorage().getEpics().isEmpty() &&
-                            fileBackendTasksManager.getStorage().getSubTasks().isEmpty()) {
+                    if (storage.getTasks().isEmpty() &&
+                            storage.getEpics().isEmpty() &&
+                            storage.getSubTasks().isEmpty()) {
                         System.out.println("Задач не найдено");
                     }
                     break;
@@ -64,13 +68,13 @@ public class Main {
                     System.out.println("Введите ID");
                     id = scanner.nextInt();
                     scanner.nextLine();
-                    if (fileBackendTasksManager.getStorage().getTasks().containsKey(id)) {
+                    if (storage.getTasks().containsKey(id)) {
                         newTask = fileBackendTasksManager.getTask(id);
                         break;
-                    } else if (fileBackendTasksManager.getStorage().getEpics().containsKey(id)) {
+                    } else if (storage.getEpics().containsKey(id)) {
                         newEpic = fileBackendTasksManager.getEpic(id);
                         break;
-                    } else if (fileBackendTasksManager.getStorage().getSubTasks().containsKey(id)){
+                    } else if (storage.getSubTasks().containsKey(id)){
                         newSubTask = fileBackendTasksManager.getSubTask(id);
                         break;
                     } else {
@@ -122,7 +126,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!fileBackendTasksManager.getStorage().getEpics().containsKey(id)){
+                        if (!storage.getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -197,7 +201,7 @@ public class Main {
                         id = scanner.nextInt();
                         scanner.nextLine();
 
-                        if (!fileBackendTasksManager.getStorage().getEpics().containsKey(id)){
+                        if (!storage.getEpics().containsKey(id)){
                             System.out.println("Данного эпика не существует!");
                             break;
                         }
@@ -257,7 +261,7 @@ public class Main {
                     id = scanner.nextInt();
                     scanner.nextLine();
 
-                    if (!fileBackendTasksManager.getStorage().getEpics().containsKey(id)){
+                    if (!storage.getEpics().containsKey(id)){
                         System.out.println("Данного эпика не существует!");
                         break;
                     }
@@ -266,7 +270,7 @@ public class Main {
                     break;
                 case 8:
                     System.out.println("История: ");
-                    System.out.println(fileBackendTasksManager.getInMemoryHistoryManager().getTasks());
+                    System.out.println(inMemoryHistoryManager.getTasks());
                     break;
                 case 9:
                     System.out.println("Список задач в порядке приоритета: ");
