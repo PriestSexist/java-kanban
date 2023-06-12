@@ -1,12 +1,13 @@
 import Manager.HistoryManager.InMemoryHistoryManager;
 import Manager.Managers;
-import Manager.TaskManager.FileBackendTasksManager;
+import Manager.TaskManager.HttpTaskManager;
 import Storage.Storage;
 import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -22,9 +23,9 @@ public class Main {
         int input;
 
         // InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
-        Storage storage = new Storage();
+        Storage storage = Managers.getDefaultStorage();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
-        FileBackendTasksManager fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/save.txt", inMemoryHistoryManager, storage);
+        HttpTaskManager httpTaskManager = new HttpTaskManager(inMemoryHistoryManager,"http://localhost:8078/", storage);
 
         Task newTask;
         Epic newEpic;
@@ -47,13 +48,13 @@ public class Main {
             switch (command){
                 case 1:
                     if (!storage.getTasks().isEmpty()) {
-                        fileBackendTasksManager.getAllTasks();
+                        httpTaskManager.getAllTasks();
                     }
                     if (!storage.getEpics().isEmpty()) {
-                        fileBackendTasksManager.getAllEpics();
+                        httpTaskManager.getAllEpics();
                     }
                     if (!storage.getSubTasks().isEmpty()){
-                        fileBackendTasksManager.getAllSubTasks();
+                        httpTaskManager.getAllSubTasks();
                     }
                     if (storage.getTasks().isEmpty() &&
                             storage.getEpics().isEmpty() &&
@@ -62,20 +63,20 @@ public class Main {
                     }
                     break;
                 case 2:
-                    fileBackendTasksManager.deleteAllTasks();
+                    httpTaskManager.deleteAllTasks();
                     break;
                 case 3:
                     System.out.println("Введите ID");
                     id = scanner.nextInt();
                     scanner.nextLine();
                     if (storage.getTasks().containsKey(id)) {
-                        newTask = fileBackendTasksManager.getTask(id);
+                        newTask = httpTaskManager.getTask(id);
                         break;
                     } else if (storage.getEpics().containsKey(id)) {
-                        newEpic = fileBackendTasksManager.getEpic(id);
+                        newEpic = httpTaskManager.getEpic(id);
                         break;
                     } else if (storage.getSubTasks().containsKey(id)){
-                        newSubTask = fileBackendTasksManager.getSubTask(id);
+                        newSubTask = httpTaskManager.getSubTask(id);
                         break;
                     } else {
                         System.out.println("Задач не найдено");
@@ -101,7 +102,7 @@ public class Main {
 
                         newTask = new Task(name, description, localDateTimeStartTime, duration);
                         System.out.println(newTask);
-                        fileBackendTasksManager.createTask(newTask);
+                        httpTaskManager.createTask(newTask);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
@@ -117,7 +118,7 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newEpic = new Epic(name, description, localDateTimeStartTime, duration);
-                        fileBackendTasksManager.createEpic(newEpic);
+                        httpTaskManager.createEpic(newEpic);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите идентификатор эпика, подзадачей которого является " +
@@ -144,7 +145,7 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newSubTask = new SubTask(name, description, localDateTimeStartTime, duration, id);
-                        fileBackendTasksManager.createSubTask(id, newSubTask);
+                        httpTaskManager.createSubTask(newSubTask);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -173,7 +174,7 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newTask = new Task(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration);
-                        fileBackendTasksManager.updateTask(newTask, oldId);
+                        httpTaskManager.updateTask(newTask, oldId);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите данные задачи, а именно 1)Название задачи 2)Описание задачи " +
@@ -192,7 +193,7 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newEpic = new Epic(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration);
-                        fileBackendTasksManager.updateEpic(newEpic, oldId);
+                        httpTaskManager.updateEpic(newEpic, oldId);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите идентификатор эпика, подзадачей которого является " +
@@ -222,7 +223,7 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newSubTask = new SubTask(name, description, TaskStatus.valueOf(status), localDateTimeStartTime, duration, id);
-                        fileBackendTasksManager.updateSubTask(id, newSubTask, oldId);
+                        httpTaskManager.updateSubTask(newSubTask, oldId);
 
                         break;
                     } else {
@@ -238,19 +239,19 @@ public class Main {
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        fileBackendTasksManager.deleteTask(id);
+                        httpTaskManager.deleteTask(id);
                         break;
                     } else if (input == 2){
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        fileBackendTasksManager.deleteEpic(id);
+                        httpTaskManager.deleteEpic(id);
                         break;
                     } else if (input == 3){
                         System.out.println("Введите ID");
                         id = scanner.nextInt();
                         scanner.nextLine();
-                        fileBackendTasksManager.deleteSubTask(id);
+                        httpTaskManager.deleteSubTask(id);
                         break;
                     } else {
                         System.out.println("Вы ввели не ту команду");
@@ -266,7 +267,7 @@ public class Main {
                         break;
                     }
 
-                    ArrayList<SubTask> subTaskArrayList = fileBackendTasksManager.gettingSubTasksOfEpic(id);
+                    ArrayList<SubTask> subTaskArrayList = httpTaskManager.gettingSubTasksOfEpic(id);
                     break;
                 case 8:
                     System.out.println("История: ");
@@ -274,7 +275,7 @@ public class Main {
                     break;
                 case 9:
                     System.out.println("Список задач в порядке приоритета: ");
-                    System.out.println(fileBackendTasksManager.getPrioritizedTasks());
+                    System.out.println(httpTaskManager.getPrioritizedTasks());
                     break;
                 case 0:
                     System.exit(0);

@@ -40,6 +40,6 @@ public class SubTask extends Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getId(), getStatus(), getParentId());
+        return Objects.hash(getName(), getDescription(), getId(), getStatus(), getParentId(), getStartTime(), getDuration(), getEndTime());
     }
 }

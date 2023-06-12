@@ -11,6 +11,7 @@ public class Storage {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
+
     public HashMap<Integer, Epic> getEpics() {
         return epics;
     }

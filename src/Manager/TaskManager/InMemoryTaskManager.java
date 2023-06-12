@@ -67,8 +67,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int id){
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
+        System.out.println("Вот что мне удалось найти в памяти:");
         System.out.println(storage.getTasks().get(id));
-        System.out.println("Вот что мне удалось найти");
+        System.out.println("А вот что на сервере:");
         try {
             inMemoryHistoryManager.add(storage.getTasks().get(id));
         } catch (NullPointerException exception){
@@ -80,8 +81,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpic(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
+        System.out.println("Вот что мне удалось найти в памяти:");
         System.out.println(storage.getEpics().get(id));
-        System.out.println("Вот что мне удалось найти");
+        System.out.println("А вот что на сервере:");
         try {
             inMemoryHistoryManager.add(storage.getEpics().get(id));
         } catch (NullPointerException exception){
@@ -93,8 +95,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask getSubTask(int id) {
         System.out.println("Начинаю поиск задачи по представленном идентификатору...");
+        System.out.println("Вот что мне удалось найти в памяти:");
         System.out.println(storage.getSubTasks().get(id));
-        System.out.println("Вот что мне удалось найти");
+        System.out.println("А вот что на сервере:");
         try {
             inMemoryHistoryManager.add(storage.getSubTasks().get(id));
         } catch (NullPointerException exception){
@@ -126,18 +129,18 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
     @Override
-    public void createSubTask(int id, SubTask subTask) {
+    public void createSubTask(SubTask subTask) {
         System.out.println("Начинаю заносить задачу в программу");
         if (!storage.getSubTasks().containsKey(subTask.getId()) && timeValidator(subTask)) {
             storage.getSubTasks().put(subTask.getId(), subTask);
 
-            Epic epic = storage.getEpics().get(id);
+            Epic epic = storage.getEpics().get(subTask.getParentId());
             epic.getSubTasks().add(subTask.getId());
 
             sortedTasks.add(subTask);
 
-            epicTimeCorrector(id);
-            statusCheckerAndChanger(id);
+            epicTimeCorrector(subTask.getParentId());
+            statusCheckerAndChanger(subTask.getParentId());
 
             System.out.println("Задача успешно занесена в программу");
         } else {
@@ -195,7 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
     @Override
-    public void updateSubTask(int id, SubTask subTask, int oldId) {
+    public void updateSubTask(SubTask subTask, int oldId) {
         System.out.println("Начинаю поиск задачи для обновления");
 
         if (storage.getSubTasks().containsKey(oldId) && timeValidator(subTask)) {
@@ -205,13 +208,13 @@ public class InMemoryTaskManager implements TaskManager {
             sortedTasks.add(subTask);
             storage.getSubTasks().put(subTask.getId(), subTask);
 
-            Epic epic = storage.getEpics().get(id);
+            Epic epic = storage.getEpics().get(subTask.getParentId());
             epic.getSubTasks().remove(Integer.valueOf(oldId));
             epic.getSubTasks().add(subTask.getId());
 
-            epicTimeCorrector(id);
+            epicTimeCorrector(subTask.getParentId());
 
-            statusCheckerAndChanger(id);
+            statusCheckerAndChanger(subTask.getParentId());
 
             // При обновлении задачи, в истории должна удаляться старая версия?
             if (inMemoryHistoryManager.getTasks().contains(subTask)){

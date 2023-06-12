@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>{
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     public InMemoryTaskManagerTest() {
         super(new InMemoryTaskManager(new InMemoryHistoryManager(), new Storage()));
@@ -46,7 +46,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>{
         SubTask subTask = new SubTask("Q", "Q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:56"), 23, epic.getId());
 
         taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask.getParentId(), subTask);
+        taskManager.createSubTask(subTask);
 
         Assertions.assertEquals(LocalDateTime.parse("2002-11-11T11:56"), taskManager.getEpic(epic.getId()).getStartTime());
         Assertions.assertEquals(23, taskManager.getEpic(epic.getId()).getDuration());

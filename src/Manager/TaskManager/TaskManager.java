@@ -28,13 +28,13 @@ public interface TaskManager {
 
     void createEpic(Epic epic);
 
-    void createSubTask(int id, SubTask subTask);
+    void createSubTask(SubTask subTask);
 
     void updateTask(Task task, int oldId);
 
     void updateEpic(Epic epic, int oldId);
 
-    void updateSubTask(int id, SubTask subTask, int oldId);
+    void updateSubTask(SubTask subTask, int oldId);
 
     void deleteTask(int id);
 

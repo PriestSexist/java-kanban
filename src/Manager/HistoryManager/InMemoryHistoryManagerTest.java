@@ -1,5 +1,6 @@
 package Manager.HistoryManager;
 
+import Manager.HistoryManager.InMemoryHistoryManager;
 import Manager.TaskManager.InMemoryTaskManager;
 import Storage.Storage;
 import Storage.TaskStatus;

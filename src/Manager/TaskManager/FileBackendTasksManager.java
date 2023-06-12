@@ -37,8 +37,8 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createSubTask(int id, SubTask subTask) {
-        super.createSubTask(id, subTask);
+    public void createSubTask(SubTask subTask) {
+        super.createSubTask(subTask);
         save();
     }
 
@@ -76,8 +76,8 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateSubTask(int id, SubTask subTask, int oldId) {
-        super.updateSubTask(id, subTask, oldId);
+    public void updateSubTask(SubTask subTask, int oldId) {
+        super.updateSubTask(subTask, oldId);
         save();
     }
 
@@ -106,9 +106,9 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     }
 
 
-    private void save () {
-        Path pathToSave = Paths.get(path);
+    protected void save () {
         try (Writer fileWriter = new FileWriter(path)) {
+            Path pathToSave = Paths.get(path);
 
             if (Files.notExists(pathToSave)) {
                 Files.createFile(pathToSave);
@@ -131,7 +131,7 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
             fileWriter.write(historyToString((InMemoryHistoryManager) inMemoryHistoryManager));
 
         } catch (IOException e) {
-            throw new ManagerSaveException("IO ошибка");
+            System.out.println("IO ошибка. Не получается записать в файл");
         }
     }
 
@@ -141,7 +141,7 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
             String line = buffer.readLine();
             while (buffer.ready()) {
                 line = buffer.readLine();
-                if (!line.equals("")) {
+                if (!line.isBlank()) {
                     Task task = fromString(line);
                     if (task instanceof Epic) {
                         storage.getEpics().put(task.getId(), (Epic) task);

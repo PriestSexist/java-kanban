@@ -88,7 +88,7 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash( getName(), getDescription(), getId(), getStatus());
+        return Objects.hash(getName(), getDescription(), getId(), getStatus(), getStartTime(), getDuration(), getEndTime());
     }
 
     @Override

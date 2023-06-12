@@ -73,8 +73,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
+        taskManager.createSubTask(secondSubTaskForTest);
 
         HashMap<Integer, SubTask> shouldBeMap = new HashMap<>();
         shouldBeMap.put(firstSubTaskForTest.getId(), firstSubTaskForTest);
@@ -102,8 +102,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(firstTaskForTest);
         taskManager.createTask(secondTaskForTest);
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
+        taskManager.createSubTask(secondSubTaskForTest);
 
         HashMap<Integer, Task> shouldBeMap = new HashMap<>();
         taskManager.deleteAllTasks();
@@ -159,7 +159,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask subTask2;
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
 
         subTask1 = taskManager.getSubTask(firstSubTaskForTest.getId());
         subTask2 = taskManager.getSubTask(12345);
@@ -177,7 +177,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask firstSubTaskForTest = new SubTask("q", "q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:12"), 1, firstEpicForTest.getId());
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
 
         // проверяю есть ли нужный ID сабтаск в листе его эпика
         Assertions.assertTrue(firstEpicForTest.getSubTasks().contains(firstSubTaskForTest.getId()));
@@ -221,9 +221,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask secondSubTaskForTest = new SubTask("w", "w", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, firstEpicForTest.getId());
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
 
-        taskManager.updateSubTask(firstEpicForTest.getId(), secondSubTaskForTest, firstSubTaskForTest.getId());
+        taskManager.updateSubTask(secondSubTaskForTest, firstSubTaskForTest.getId());
         Epic epicAfterUpdate = taskManager.getEpic(firstEpicForTest.getId());
         SubTask subTaskAfterUpdate = taskManager.getSubTask(secondSubTaskForTest.getId());
 
@@ -256,7 +256,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask subTask;
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
 
         taskManager.deleteEpic(firstEpicForTest.getId());
 
@@ -275,7 +275,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask subTask;
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
         taskManager.deleteSubTask(firstSubTaskForTest.getId());
 
         firstEpicForTest = taskManager.getEpic(firstEpicForTest.getId());
@@ -293,9 +293,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask thirdSubTaskForTest = new SubTask("a", "a", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:14"), 1, firstEpicForTest.getId());
 
         taskManager.createEpic(firstEpicForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), firstSubTaskForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), secondSubTaskForTest);
-        taskManager.createSubTask(firstEpicForTest.getId(), thirdSubTaskForTest);
+        taskManager.createSubTask(firstSubTaskForTest);
+        taskManager.createSubTask(secondSubTaskForTest);
+        taskManager.createSubTask(thirdSubTaskForTest);
 
         ArrayList<SubTask> subTaskArrayList2 = taskManager.gettingSubTasksOfEpic(firstEpicForTest.getId());
         ArrayList<SubTask> subTaskArrayList3 = taskManager.gettingSubTasksOfEpic(12345);
@@ -319,7 +319,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask subTask = new SubTask("Q", "Q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:56"), 23, epic.getId());
 
         taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask.getParentId(), subTask);
+        taskManager.createSubTask(subTask);
         taskManager.createTask(task);
         TreeSet<Task> sortedTasks = taskManager.getPrioritizedTasks();
 
@@ -352,8 +352,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask secondSubTaskForTest2 = new SubTask("a", "a", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:13"), 1, epicForTest2.getId());
 
         taskManager.createEpic(epicForTest2);
-        taskManager.createSubTask(epicForTest2.getId(), firstSubTaskForTest2);
-        taskManager.updateSubTask(epicForTest2.getId(), secondSubTaskForTest2, firstSubTaskForTest2.getId());
+        taskManager.createSubTask(firstSubTaskForTest2);
+        taskManager.updateSubTask(secondSubTaskForTest2, firstSubTaskForTest2.getId());
 
         TaskStatus status = taskManager.getEpic(epicForTest2.getId()).getStatus();
 
@@ -368,8 +368,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask secondSubTaskForTest3 = new SubTask("a", "a", TaskStatus.DONE, LocalDateTime.parse("2002-11-11T11:13"), 1, epicForTest3.getId());
 
         taskManager.createEpic(epicForTest3);
-        taskManager.createSubTask(epicForTest3.getId(), firstSubTaskForTest3);
-        taskManager.updateSubTask(epicForTest3.getId(), secondSubTaskForTest3, firstSubTaskForTest3.getId());
+        taskManager.createSubTask(firstSubTaskForTest3);
+        taskManager.updateSubTask(secondSubTaskForTest3, firstSubTaskForTest3.getId());
 
 
         TaskStatus status = taskManager.getEpic(epicForTest3.getId()).getStatus();
@@ -386,9 +386,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask thirdSubTaskForTest4 = new SubTask("s", "s", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:15"), 1, epicForTest4.getId());
 
         taskManager.createEpic(epicForTest4);
-        taskManager.createSubTask(epicForTest4.getId(),firstSubTaskForTest4);
-        taskManager.updateSubTask(epicForTest4.getId(), secondSubTaskForTest4, firstSubTaskForTest4.getId());
-        taskManager.createSubTask(epicForTest4.getId(),thirdSubTaskForTest4);
+        taskManager.createSubTask(firstSubTaskForTest4);
+        taskManager.updateSubTask(secondSubTaskForTest4, firstSubTaskForTest4.getId());
+        taskManager.createSubTask(thirdSubTaskForTest4);
 
 
         TaskStatus status = taskManager.getEpic(epicForTest4.getId()).getStatus();
@@ -407,11 +407,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
         SubTask thirdSubTaskForTest5 = new SubTask("g", "g", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:15"), 1, secondEpicForTest5.getId());
 
         taskManager.createEpic(firstEpicForTest5);
-        taskManager.createSubTask(firstEpicForTest5.getId(), firstSubTaskForTest5);
-        taskManager.updateSubTask(firstEpicForTest5.getId(), secondSubTaskForTest5, firstSubTaskForTest5.getId());
+        taskManager.createSubTask(firstSubTaskForTest5);
+        taskManager.updateSubTask(secondSubTaskForTest5, firstSubTaskForTest5.getId());
 
         taskManager.createEpic(secondEpicForTest5);
-        taskManager.createSubTask(secondEpicForTest5.getId(), thirdSubTaskForTest5);
+        taskManager.createSubTask(thirdSubTaskForTest5);
 
         TaskStatus status = taskManager.getEpic(firstEpicForTest5.getId()).getStatus();
 

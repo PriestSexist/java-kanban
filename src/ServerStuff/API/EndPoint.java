@@ -1,0 +1,24 @@
+package ServerStuff.API;
+
+public enum EndPoint {
+    GET_ALL_TASKS, //3
+    GET_ALL_EPICS, //3
+    GET_ALL_SUBTASKS, //3
+    GET_TASK_BY_ID, //4
+    GET_EPIC_BY_ID, //4
+    GET_SUBTASK_BY_ID, //4
+    POST_NEW_TASK, //4
+    POST_NEW_EPIC, //4
+    POST_NEW_SUBTASK, //4
+    POST_UPDATED_TASK, //4
+    POST_UPDATED_EPIC, //4
+    POST_UPDATED_SUBTASK, //4
+    DELETE_TASK, //4
+    DELETE_EPIC, //4
+    DELETE_SUBTASK, //4
+    DELETE_ALL_TASKS, //3
+    GET_ALL_SUBTASKS_OF_ONE_EPIC, //5
+    GET_PRIORITIZED_TASKS, //2
+    GET_HISTORY, //3
+    UNKNOWN
+}

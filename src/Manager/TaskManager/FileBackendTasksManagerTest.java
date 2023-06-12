@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
+class FileBackendTasksManagerTest extends InMemoryTaskManagerTest {
 
     Storage storage;
     @BeforeEach
@@ -54,7 +54,7 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
 
 
         taskManager.createEpic(epic);
-        taskManager.createSubTask(epic.getId(), subTask);
+        taskManager.createSubTask(subTask);
 
         Assertions.assertFalse(fileBackendTasksManager.storage.getTasks().isEmpty());
         Assertions.assertFalse(fileBackendTasksManager.storage.getSubTasks().isEmpty());
@@ -94,7 +94,7 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
         SubTask subTask = new SubTask("1", "2", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:12"), 1, epic.getId());
 
         fileBackendTasksManager.createEpic(epic);
-        fileBackendTasksManager.createSubTask(epic.getId(), subTask);
+        fileBackendTasksManager.createSubTask(subTask);
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt", (InMemoryHistoryManager) taskManager.inMemoryHistoryManager, storage);
         Assertions.assertEquals(fileBackendTasksManager.getSubTask(subTask.getId()), subTask);
     }
@@ -133,7 +133,7 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
         SubTask subTask = new SubTask("1", "2", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:12"), 1, epic.getId());
 
         fileBackendTasksManager.createEpic(epic);
-        fileBackendTasksManager.createSubTask(epic.getId(), subTask);
+        fileBackendTasksManager.createSubTask(subTask);
         fileBackendTasksManager.getSubTask(subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt", (InMemoryHistoryManager) taskManager.inMemoryHistoryManager, storage);
         //У fileBackendTasksManager менеджера есть свой inMemoryHistoryManager, но эта история унаследована от inMemoryTaskManager и служит только для записи в файл истории.
@@ -176,8 +176,8 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
         SubTask subTask1 = new SubTask("2", "3", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:13"), 1, epic.getId());
 
         fileBackendTasksManager.createEpic(epic);
-        fileBackendTasksManager.createSubTask(epic.getId(), subTask);
-        fileBackendTasksManager.updateSubTask(epic.getId(), subTask1, subTask.getId());
+        fileBackendTasksManager.createSubTask(subTask);
+        fileBackendTasksManager.updateSubTask(subTask1, subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt", (InMemoryHistoryManager) taskManager.inMemoryHistoryManager, storage);
 
         Assertions.assertEquals(fileBackendTasksManager.getSubTask(subTask1.getId()), subTask1);
@@ -224,7 +224,7 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
         SubTask testSubTask;
 
         fileBackendTasksManager.createEpic(epic);
-        fileBackendTasksManager.createSubTask(epic.getId(), subTask);
+        fileBackendTasksManager.createSubTask(subTask);
         fileBackendTasksManager.deleteSubTask(subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt", (InMemoryHistoryManager) taskManager.inMemoryHistoryManager, storage);
 
@@ -242,8 +242,8 @@ class FileBackendTasksManagerTest extends InMemoryTaskManagerTest{
         SubTask subTask1 = new SubTask("1", "2", TaskStatus.IN_PROGRESS, LocalDateTime.parse("2002-11-11T11:13"), 1, epic.getId());
 
         fileBackendTasksManager.createEpic(epic);
-        fileBackendTasksManager.createSubTask(epic.getId(), subTask);
-        fileBackendTasksManager.updateSubTask(epic.getId(), subTask1, subTask.getId());
+        fileBackendTasksManager.createSubTask(subTask);
+        fileBackendTasksManager.updateSubTask(subTask1, subTask.getId());
         fileBackendTasksManager = FileBackendTasksManager.loadFromFile("./resources/test.txt", (InMemoryHistoryManager) taskManager.inMemoryHistoryManager, storage);
 
         Assertions.assertEquals(fileBackendTasksManager.getEpic(epic.getId()).getStatus(), TaskStatus.IN_PROGRESS);
