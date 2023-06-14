@@ -3,6 +3,7 @@ package Manager.TaskManager;
 import Manager.Exceptions.ManagerSaveException;
 import Manager.HistoryManager.InMemoryHistoryManager;
 import Storage.Storage;
+import Storage.TaskType;
 import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -147,12 +148,12 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
                         storage.getEpics().put(task.getId(), (Epic) task);
                     } else if (task instanceof SubTask) {
                         storage.getSubTasks().put(task.getId(), (SubTask) task);
-                        Epic epic =  storage.getEpics().get(((SubTask) task).getParentId());
+                        Epic epic = storage.getEpics().get(((SubTask) task).getParentId());
                         epic.getSubTasks().add(task.getId());
                     } else {
                         storage.getTasks().put(task.getId(), task);
                     }
-                    sortedTasks.add(task);
+                    storage.getSortedTasks().add(task);
                 } else {
                     line = buffer.readLine();
                     if (line != null) {

@@ -7,14 +7,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    private final String apiToken;
+    private String apiToken;
     private final String baseUri;
 
-    public KVTaskClient(String uri) throws IOException {
-        KVServer kvServer = new KVServer();
-        kvServer.start();
+    public KVTaskClient(String uri)  {
         this.baseUri = uri;
-        this.apiToken = kvServer.getApiToken();
+            try {
+                KVServer kvServer = new KVServer();
+                kvServer.start();
+                String saveUri = baseUri + "register";
+                URI uriRegister = URI.create(saveUri);
+                HttpClient clientRegister = HttpClient.newHttpClient();
+
+                HttpRequest requestRegister = HttpRequest
+                        .newBuilder()
+                        .uri(uriRegister)
+                        .GET()
+                        .build();
+
+                final HttpResponse<String> responseRegister = clientRegister.send(requestRegister, HttpResponse.BodyHandlers.ofString());
+                this.apiToken = responseRegister.body();
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Или при запуске севера или при регистрации возникла ошибка");
+            }
     }
 
     public void put(String key, String json){

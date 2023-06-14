@@ -52,12 +52,10 @@ public class KVServer {
 				}
 				String responseString = data.get(key);
 				byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
-				h.sendResponseHeaders(h.getResponseCode(), bytes.length);
+				h.sendResponseHeaders(200, 0);
 				try (OutputStream os = h.getResponseBody()) {
 					os.write(bytes);
 				}
-				System.out.println(responseString);
-				h.sendResponseHeaders(200, 0);
 			} else {
 				System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);

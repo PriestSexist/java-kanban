@@ -1,11 +1,10 @@
 package Manager.HistoryManager;
 
 import Storage.Node;
+import Storage.Storage;
 import Tasks.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
@@ -13,14 +12,18 @@ public class InMemoryHistoryManager implements HistoryManager{
     private Node last = null;
     private int size = 0;
     private static final int MAX_SIZE = 10;
-    private final Map<Integer, Node> historyMap = new HashMap<>();
+    private final Storage storage;
+
+    public InMemoryHistoryManager(Storage storage) {
+        this.storage = storage;
+    }
 
     @Override
     public void add(Task task) {
-        if (size >= MAX_SIZE && !historyMap.containsKey(task.getId())) {
+        if (size >= MAX_SIZE && !storage.getHistoryMap().containsKey(task.getId())) {
             removeNode(first);
             linkLast(task);
-        } else if (size < MAX_SIZE && !historyMap.containsKey(task.getId())) {
+        } else if (size < MAX_SIZE && !storage.getHistoryMap().containsKey(task.getId())) {
             linkLast(task);
         } else {
             remove(task.getId());
@@ -30,12 +33,12 @@ public class InMemoryHistoryManager implements HistoryManager{
 
     @Override
     public void remove(int id) {
-        removeNode(historyMap.get(id));
+        removeNode(storage.getHistoryMap().get(id));
     }
 
     @Override
     public void removeAll() {
-        historyMap.clear();
+        storage.getHistoryMap().clear();
         first = null;
         last = null;
         size = 0;
@@ -46,13 +49,13 @@ public class InMemoryHistoryManager implements HistoryManager{
         Node node = new Node(task, null, last);
 
         if (last != null) {
-            historyMap.get(last.getData().getId()).setNext(node);
+            storage.getHistoryMap().get(last.getData().getId()).setNext(node);
         } else {
             first = node;
         }
 
         last = node;
-        historyMap.put(task.getId(), node);
+        storage.getHistoryMap().put(task.getId(), node);
         size++;
     }
 
@@ -87,7 +90,7 @@ public class InMemoryHistoryManager implements HistoryManager{
             last = null;
         }
 
-        historyMap.remove(node.getData().getId());
+        storage.getHistoryMap().remove(node.getData().getId());
         size--;
     }
 }

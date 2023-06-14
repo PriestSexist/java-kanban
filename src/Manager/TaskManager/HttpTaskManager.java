@@ -1,6 +1,7 @@
 package Manager.TaskManager;
 
 import Manager.HistoryManager.InMemoryHistoryManager;
+import Storage.Node;
 import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -8,8 +9,9 @@ import Tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class HttpTaskManager extends FileBackendTasksManager {
 
@@ -21,7 +23,7 @@ public class HttpTaskManager extends FileBackendTasksManager {
     String uri;
     Gson gson = new Gson();
     KVTaskClient kvTaskClient;
-    public HttpTaskManager(InMemoryHistoryManager inMemoryHistoryManager, String uri, Storage storage) throws IOException {
+    public HttpTaskManager(InMemoryHistoryManager inMemoryHistoryManager, String uri, Storage storage) {
         super(inMemoryHistoryManager, uri, storage);
         this.uri = uri;
         this.kvTaskClient = new KVTaskClient(uri);
@@ -39,17 +41,60 @@ public class HttpTaskManager extends FileBackendTasksManager {
         String subTasks = gson.toJson(storage.getSubTasks());
         kvTaskClient.put("subTasks", subTasks);
 
-        String history = gson.toJson(inMemoryHistoryManager.getTasks());
+        String history = gson.toJson(storage.getHistoryMap());
         kvTaskClient.put("history", history);
-
-        String prioritisedTasks = gson.toJson(getPrioritizedTasks());
-        kvTaskClient.put("prioritisedTasks", prioritisedTasks);
 
         System.out.println(tasks);
         System.out.println(epics);
         System.out.println(subTasks);
         System.out.println(history);
-        System.out.println(prioritisedTasks);
+
+    }
+
+    public void load() {
+        String resultTasks;
+        resultTasks = kvTaskClient.load("tasks");
+        HashMap<Integer, Task> tasks = gson.fromJson(resultTasks, new TypeToken<HashMap<Integer, Task>>() {}.getType());
+        if (tasks != null){
+            storage.getTasks().putAll(tasks);
+        }
+
+        resultTasks = kvTaskClient.load("epics");
+        HashMap<Integer, Epic> epics = gson.fromJson(resultTasks, new TypeToken<HashMap<Integer, Epic>>() {}.getType());
+        if (epics != null){
+            storage.getEpics().putAll(epics);
+        }
+
+        resultTasks = kvTaskClient.load("subTasks");
+        HashMap<Integer, SubTask> subTasks = gson.fromJson(resultTasks, new TypeToken<HashMap<Integer, SubTask>>() {}.getType());
+        if (subTasks != null){
+            storage.getSubTasks().putAll(subTasks);
+        }
+
+        resultTasks = kvTaskClient.load("history");
+        HashMap<Integer, Node> history = gson.fromJson(resultTasks, new TypeToken<HashMap<Integer, Node>>() {}.getType());
+        if (history != null){
+            storage.getHistoryMap().putAll(history);
+        }
+
+        storage.getSortedTasks().clear();
+        for (Task task : storage.getTasks().values()) {
+            storage.getSortedTasks().add(task);
+        }
+        for (Epic epic : storage.getEpics().values()) {
+            storage.getSortedTasks().add(epic);
+        }
+        for (SubTask subTask : storage.getSubTasks().values()) {
+            storage.getSortedTasks().add(subTask);
+        }
+
+        /* ошибка: class Tasks.Task cannot be cast to class java.lang.Comparable (Tasks.Task is in unnamed module of loader 'app'; java.lang.Comparable is in module java.base of loader 'bootstrap')
+        хз, чо с ней делать, так что, буду сначала загружать, а потом список формировать. Сл-но не буду сохранять это.
+        resultTasks = kvTaskClient.load("prioritisedTasks");
+        TreeSet<Task> prioritisedTasks = gson.fromJson(resultTasks, new TypeToken<TreeSet<Task>>() {}.getType());
+        if (prioritisedTasks != null){
+            storage.getSortedTasks().addAll(prioritisedTasks);
+        }*/
 
     }
 
@@ -70,28 +115,17 @@ public class HttpTaskManager extends FileBackendTasksManager {
 
     @Override
     public Task getTask(int id) {
-        //Чтобы история засчиталась. Мы же её не сохраняем на сервер
-        super.getTask(id);
-        String result = kvTaskClient.load("tasks");
-        System.out.println("result");
-        HashMap<Integer, Task> tasks = gson.fromJson(result, new TypeToken<HashMap<Integer, Task>>() {}.getType());
-        return tasks.get(id);
+        return super.getTask(id);
     }
 
     @Override
     public Epic getEpic(int id) {
-        //Чтобы история засчиталась. Мы же её не сохраняем на сервер
-        super.getEpic(id);
-        String result = kvTaskClient.load(String.valueOf(id));
-        return gson.fromJson(result, Epic.class);
+        return super.getEpic(id);
     }
 
     @Override
     public SubTask getSubTask(int id) {
-        //Чтобы история засчиталась. Мы же её не сохраняем на сервер
-        super.getSubTask(id);
-        String result = kvTaskClient.load(String.valueOf(id));
-        return gson.fromJson(result, SubTask.class);
+        return super.getSubTask(id);
     }
 
     @Override
@@ -127,5 +161,15 @@ public class HttpTaskManager extends FileBackendTasksManager {
     @Override
     public void deleteAllTasks() {
         super.deleteAllTasks();
+    }
+
+    @Override
+    public ArrayList<SubTask> gettingSubTasksOfEpic(int id) {
+        return super.gettingSubTasksOfEpic(id);
+    }
+
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return super.getPrioritizedTasks();
     }
 }

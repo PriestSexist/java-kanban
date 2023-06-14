@@ -7,7 +7,6 @@ import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -15,17 +14,16 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
 
         int command;
         int input;
 
-        // InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
         Storage storage = Managers.getDefaultStorage();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
-        HttpTaskManager httpTaskManager = new HttpTaskManager(inMemoryHistoryManager,"http://localhost:8078/", storage);
+        HttpTaskManager httpTaskManager = (HttpTaskManager) Managers.getDefault();
 
         Task newTask;
         Epic newEpic;
@@ -56,9 +54,7 @@ public class Main {
                     if (!storage.getSubTasks().isEmpty()){
                         httpTaskManager.getAllSubTasks();
                     }
-                    if (storage.getTasks().isEmpty() &&
-                            storage.getEpics().isEmpty() &&
-                            storage.getSubTasks().isEmpty()) {
+                    if (storage.getTasks().isEmpty() && storage.getEpics().isEmpty() && storage.getSubTasks().isEmpty()) {
                         System.out.println("Задач не найдено");
                     }
                     break;
@@ -277,6 +273,10 @@ public class Main {
                     System.out.println("Список задач в порядке приоритета: ");
                     System.out.println(httpTaskManager.getPrioritizedTasks());
                     break;
+                case 10:
+                    System.out.println("Подтягиваю таски сервера: ");
+                    httpTaskManager.load();
+                    break;
                 case 0:
                     System.exit(0);
                     break;
@@ -297,6 +297,7 @@ public class Main {
         System.out.println("7 - Получение списка всех подзадач определённого эпика.");
         System.out.println("8 - вывод истории");
         System.out.println("9 - вывод списка задач в порядке приоритета");
+        System.out.println("10 - Подтянуть таски с сервера. (!!!ОПАСНО!!!, ВСЕ ТАСКИ, КОТОРЫХ НЕТ НА СЕРВЕРЕ, ПРОПАДУТ. НО ВСЁ ТУДА СОХРАНЯЕТСЯ ПОСЛЕ СОЗДАНИЯ ТУТ, ДАЙ БОГ!)");
         System.out.println("0 - Выход");
         System.out.println("Выберите команду");
 

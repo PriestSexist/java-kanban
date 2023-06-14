@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
-
     public InMemoryTaskManagerTest() {
-        super(new InMemoryTaskManager(new InMemoryHistoryManager(), new Storage()));
+        super(new InMemoryTaskManager(new InMemoryHistoryManager(new Storage()), new Storage()));
     }
 
     @Test

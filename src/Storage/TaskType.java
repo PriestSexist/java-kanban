@@ -1,4 +1,4 @@
-package Manager.TaskManager;
+package Storage;
 
 public enum TaskType {
     TASK,

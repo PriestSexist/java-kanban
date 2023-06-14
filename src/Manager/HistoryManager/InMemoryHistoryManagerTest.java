@@ -1,6 +1,5 @@
 package Manager.HistoryManager;
 
-import Manager.HistoryManager.InMemoryHistoryManager;
 import Manager.TaskManager.InMemoryTaskManager;
 import Storage.Storage;
 import Storage.TaskStatus;
@@ -16,7 +15,7 @@ class InMemoryHistoryManagerTest {
 
     Storage storage = new Storage();
     InMemoryTaskManager inMemoryTaskManager;
-    InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
+    InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager(storage);
 
     @BeforeEach
     public void managerCreator(){
