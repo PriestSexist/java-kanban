@@ -50,12 +50,19 @@ public class KVServer {
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				String responseString = data.get(key);
-				byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
-				h.sendResponseHeaders(200, 0);
-				try (OutputStream os = h.getResponseBody()) {
-					os.write(bytes);
+				if (data.containsKey(key)) {
+					String responseString = data.get(key);
+					byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
+					h.sendResponseHeaders(200, 0);
+					try (OutputStream os = h.getResponseBody()) {
+						os.write(bytes);
+					}
+				} else {
+					System.out.println("Данные не найдены");
+					h.sendResponseHeaders(404, 0);
 				}
+
+
 			} else {
 				System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);
@@ -117,6 +124,11 @@ public class KVServer {
 		System.out.println("Открой в браузере http://localhost:" + PORT + "/");
 		System.out.println("API_TOKEN: " + apiToken);
 		server.start();
+	}
+
+	public void stop() {
+		System.out.println("Закрываем сервер");
+		server.stop(1);
 	}
 
 	private String generateApiToken() {

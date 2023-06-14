@@ -9,23 +9,14 @@ import Tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 public class HttpTaskManager extends FileBackendTasksManager {
 
-     /* Не лучше ли наследовать от InMemoryTaskManager?
-     Если наследовать от FileBackendTasksManager, то тогда надо как-то бороться с тем, что путь для файла мы не передаём по тз,
-     а save() через super вызывается. И это либо сохранять Таски только на сервере, что ограничивает возможности
-     ТаскМенеджера из-за маленького функционала сервера (например, нельзя удалять). Либо, как вариант, всё же передавать путь для сохранения файлов.
-     Либо большое дублирование кода. Это если ручками переносить код из InMemoryTaskManager */
-    String uri;
-    Gson gson = new Gson();
-    KVTaskClient kvTaskClient;
+    private final Gson gson = new Gson();
+    private final KVTaskClient kvTaskClient;
     public HttpTaskManager(InMemoryHistoryManager inMemoryHistoryManager, String uri, Storage storage) {
         super(inMemoryHistoryManager, uri, storage);
-        this.uri = uri;
         this.kvTaskClient = new KVTaskClient(uri);
     }
 
@@ -98,6 +89,10 @@ public class HttpTaskManager extends FileBackendTasksManager {
 
     }
 
+    public KVTaskClient getKvTaskClient() {
+        return kvTaskClient;
+    }
+
     @Override
     public void createTask(Task task) {
         super.createTask(task);
@@ -163,13 +158,4 @@ public class HttpTaskManager extends FileBackendTasksManager {
         super.deleteAllTasks();
     }
 
-    @Override
-    public ArrayList<SubTask> gettingSubTasksOfEpic(int id) {
-        return super.gettingSubTasksOfEpic(id);
-    }
-
-    @Override
-    public TreeSet<Task> getPrioritizedTasks() {
-        return super.getPrioritizedTasks();
-    }
 }

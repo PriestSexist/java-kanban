@@ -9,27 +9,34 @@ import java.net.http.HttpResponse;
 public class KVTaskClient {
     private String apiToken;
     private final String baseUri;
+    private KVServer kvServer;
 
     public KVTaskClient(String uri)  {
         this.baseUri = uri;
-            try {
-                KVServer kvServer = new KVServer();
-                kvServer.start();
-                String saveUri = baseUri + "register";
-                URI uriRegister = URI.create(saveUri);
-                HttpClient clientRegister = HttpClient.newHttpClient();
+        try {
+            KVServer kvServer = new KVServer();
+            kvServer.start();
+            String saveUri = baseUri + "register";
+            URI uriRegister = URI.create(saveUri);
+            HttpClient clientRegister = HttpClient.newHttpClient();
 
-                HttpRequest requestRegister = HttpRequest
-                        .newBuilder()
-                        .uri(uriRegister)
-                        .GET()
-                        .build();
+            HttpRequest requestRegister = HttpRequest
+                    .newBuilder()
+                    .uri(uriRegister)
+                    .GET()
+                    .build();
 
-                final HttpResponse<String> responseRegister = clientRegister.send(requestRegister, HttpResponse.BodyHandlers.ofString());
-                this.apiToken = responseRegister.body();
-            } catch (IOException | InterruptedException e) {
-                System.out.println("Или при запуске севера или при регистрации возникла ошибка");
-            }
+            final HttpResponse<String> responseRegister = clientRegister.send(requestRegister, HttpResponse.BodyHandlers.ofString());
+            this.apiToken = responseRegister.body();
+            this.kvServer = kvServer;
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Или при запуске севера или при регистрации возникла ошибка");
+        }
+
+    }
+
+    public KVServer getKvServer() {
+        return kvServer;
     }
 
     public void put(String key, String json){
