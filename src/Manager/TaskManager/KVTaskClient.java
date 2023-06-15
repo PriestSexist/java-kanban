@@ -9,15 +9,13 @@ import java.net.http.HttpResponse;
 public class KVTaskClient {
     private String apiToken;
     private final String baseUri;
-    private KVServer kvServer;
 
     public KVTaskClient(String uri)  {
         this.baseUri = uri;
         try {
             KVServer kvServer = new KVServer();
             kvServer.start();
-            String saveUri = baseUri + "register";
-            URI uriRegister = URI.create(saveUri);
+            URI uriRegister = URI.create(baseUri + "register");
             HttpClient clientRegister = HttpClient.newHttpClient();
 
             HttpRequest requestRegister = HttpRequest
@@ -28,15 +26,31 @@ public class KVTaskClient {
 
             final HttpResponse<String> responseRegister = clientRegister.send(requestRegister, HttpResponse.BodyHandlers.ofString());
             this.apiToken = responseRegister.body();
-            this.kvServer = kvServer;
         } catch (IOException | InterruptedException e) {
             System.out.println("Или при запуске севера или при регистрации возникла ошибка");
         }
 
     }
 
-    public KVServer getKvServer() {
-        return kvServer;
+    // для тестов
+    public KVTaskClient(String uri, KVServer kvServer) {
+        this.baseUri = uri;
+        kvServer.start();
+        URI uriRegister = URI.create(baseUri + "register");
+        HttpClient clientRegister = HttpClient.newHttpClient();
+
+        HttpRequest requestRegister = HttpRequest
+                .newBuilder()
+                .uri(uriRegister)
+                .GET()
+                .build();
+
+        try {
+            final HttpResponse<String> responseRegister = clientRegister.send(requestRegister, HttpResponse.BodyHandlers.ofString());
+            this.apiToken = responseRegister.body();
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Или при запуске севера или при регистрации возникла ошибка");
+        }
     }
 
     public void put(String key, String json){
@@ -57,7 +71,7 @@ public class KVTaskClient {
         }
     }
 
-    public String load(String key){
+    public String load(String key) {
         String loadUri = baseUri + "load/" + key + "?API_TOKEN=" + apiToken;
         URI uri = URI.create(loadUri);
         HttpClient client = HttpClient.newHttpClient();
@@ -71,8 +85,7 @@ public class KVTaskClient {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса возникла ошибка. Проверьте, пожалуйста, адрес и повторите попытку.");
+            throw  new RuntimeException("Во время выполнения запроса возникла ошибка. Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-        return "";
     }
 }

@@ -6,30 +6,38 @@ import Storage.TaskStatus;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
-import com.google.gson.Gson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 
 class HttpTaskManagerTest {
 
-    HttpTaskManager httpTaskManager;
-    Gson gson = new Gson();
     Storage storage = new Storage();
     InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager(storage);
 
+    KVTaskClient kvTaskClient;
+    KVServer kvServer;
+
+    HttpTaskManager httpTaskManager;
+
     @BeforeEach
     public void serverStart() {
-        httpTaskManager = new HttpTaskManager(inMemoryHistoryManager, "http://localhost:8078/", storage);
+        try {
+            this.kvServer = new KVServer();
+        } catch (IOException e) {
+            System.out.println("Или при запуске севера или при регистрации возникла ошибка");
+        }
+        this.kvTaskClient = new KVTaskClient("http://localhost:8078/", kvServer);
+        this.httpTaskManager = new HttpTaskManager(inMemoryHistoryManager, storage, kvTaskClient);
     }
 
     @AfterEach
     public void serverEnd() {
-        httpTaskManager.getKvTaskClient().getKvServer().stop();
+        kvServer.stop();
     }
 
     @Test
@@ -39,26 +47,9 @@ class HttpTaskManagerTest {
         Epic epic = new Epic("11", "22", TaskStatus.NEW, LocalDateTime.parse("2001-11-11T11:33"), 23);
         SubTask subTask = new SubTask("Q", "Q", TaskStatus.NEW, LocalDateTime.parse("2002-11-11T11:56"), 23, epic.getId());
 
-        HashMap<Integer, Task> tasks = new HashMap<>();
-        tasks.put(task.getId(), task);
-
-        HashMap<Integer, Epic> epics = new HashMap<>();
-        epics.put(epic.getId(), epic);
-
-        HashMap<Integer, SubTask> subTasks = new HashMap<>();
-        subTasks.put(subTask.getId(), subTask);
-
-        String tasksJson = gson.toJson(tasks);
-        String epicsJson = gson.toJson(epics);
-        String subTasksJson = gson.toJson(subTasks);
-
-        httpTaskManager.getKvTaskClient().put("tasks", tasksJson);
-        httpTaskManager.getKvTaskClient().put("epics", epicsJson);
-        httpTaskManager.getKvTaskClient().put("subTasks", subTasksJson);
-
-        Assertions.assertNull(storage.getTasks().get(task.getId()));
-        Assertions.assertNull(storage.getEpics().get(epic.getId()));
-        Assertions.assertNull(storage.getSubTasks().get(subTask.getId()));
+        httpTaskManager.createTask(task);
+        httpTaskManager.createEpic(epic);
+        httpTaskManager.createSubTask(subTask);
 
         httpTaskManager.load();
 

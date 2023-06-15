@@ -1,6 +1,7 @@
 package Manager.TaskManager;
 
 import Manager.Exceptions.ManagerSaveException;
+import Manager.HistoryManager.HistoryManager;
 import Manager.HistoryManager.InMemoryHistoryManager;
 import Storage.Storage;
 import Storage.TaskType;
@@ -23,6 +24,11 @@ public class FileBackendTasksManager extends InMemoryTaskManager {
     public FileBackendTasksManager(InMemoryHistoryManager inMemoryHistoryManager, String path, Storage storage) {
         super(inMemoryHistoryManager, storage);
         this.path = path;
+    }
+
+    public FileBackendTasksManager(HistoryManager historyManager, Storage storage) {
+        super(historyManager, storage);
+        this.path = "./resources/save.txt";
     }
 
     @Override

@@ -1,9 +1,9 @@
 package Manager.TaskManager;
 
-import Manager.HistoryManager.InMemoryHistoryManager;
+import Manager.HistoryManager.HistoryManager;
 import Manager.Managers;
-import Storage.Storage;
 import Storage.EndPoint;
+import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -43,8 +43,8 @@ public class HttpTaskServer {
 
     static class TasksHandler implements HttpHandler {
 
-        FileBackendTasksManager fileBackendTasksManager = Managers.getDefaultFileBackend();
-        InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) Managers.getDefaultHistory();
+        TaskManager httpTaskManager = Managers.getDefault();
+        HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
         Storage storage = Managers.getDefaultStorage();
         private static final Gson gson = new Gson();
         private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -287,22 +287,22 @@ public class HttpTaskServer {
         }
 
         private void handleGetAllTasks(HttpExchange exchange) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getAllTasks()), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getAllTasks()), 200);
         }
         private void handleGetAllEpics(HttpExchange exchange) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getAllEpics()), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getAllEpics()), 200);
         }
         private void handleGetAllSubTasks(HttpExchange exchange) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getAllSubTasks()), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getAllSubTasks()), 200);
         }
         private void handleGetTaskByID(HttpExchange exchange, int id) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getTask(id)), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getTask(id)), 200);
         }
         private void handleGetEpicByID(HttpExchange exchange, int id) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getEpic(id)), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getEpic(id)), 200);
         }
         private void handleGetSubTaskByID(HttpExchange exchange, int id) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getSubTask(id)), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getSubTask(id)), 200);
         }
         private void handlePostTask(HttpExchange exchange) throws IOException {
 
@@ -319,7 +319,7 @@ public class HttpTaskServer {
             // Для автогенерации некоторых параметров как ID
             task = new Task(taskFromJson.getName(), taskFromJson.getDescription(), taskFromJson.getStartTime(), taskFromJson.getDuration());
 
-            fileBackendTasksManager.createTask(task);
+            httpTaskManager.createTask(task);
 
             writeResponse(exchange, "Задача добавлена", 201);
         }
@@ -338,7 +338,7 @@ public class HttpTaskServer {
             }
             epic = new Epic(epicFromJson.getName(), epicFromJson.getDescription(), epicFromJson.getStartTime(), epicFromJson.getDuration());
 
-            fileBackendTasksManager.createEpic(epic);
+            httpTaskManager.createEpic(epic);
 
             writeResponse(exchange, "Задача добавлена", 201);
         }
@@ -357,8 +357,8 @@ public class HttpTaskServer {
             }
             subTask = new SubTask(subTaskFromJson.getName(), subTaskFromJson.getDescription(), subTaskFromJson.getStartTime(), subTaskFromJson.getDuration(), subTaskFromJson.getParentId());
 
-            if (fileBackendTasksManager.storage.getEpics().containsKey(subTaskFromJson.getParentId())){
-                fileBackendTasksManager.createSubTask(subTask);
+            if (storage.getEpics().containsKey(subTaskFromJson.getParentId())){
+                httpTaskManager.createSubTask(subTask);
             } else {
                 System.out.println("Эпика для данного сабтаска не существует");
             }
@@ -380,7 +380,7 @@ public class HttpTaskServer {
             }
             if (storage.getTasks().containsKey(id)) {
                 task = new Task(taskFromJson.getName(), taskFromJson.getDescription(), taskFromJson.getStatus(), taskFromJson.getStartTime(), taskFromJson.getDuration());
-                fileBackendTasksManager.updateTask(task, id);
+                httpTaskManager.updateTask(task, id);
                 writeResponse(exchange, "Таск обновлён", 200);
                 return;
             }
@@ -403,7 +403,7 @@ public class HttpTaskServer {
 
             if (storage.getEpics().containsKey(id)) {
                 epic = new Epic(epicFromJson.getName(), epicFromJson.getDescription(), epicFromJson.getStatus(), epicFromJson.getStartTime(), epicFromJson.getDuration());
-                fileBackendTasksManager.updateEpic(epic, id);
+                httpTaskManager.updateEpic(epic, id);
                 writeResponse(exchange, "Эпик обновлён", 200);
                 return;
             }
@@ -426,7 +426,7 @@ public class HttpTaskServer {
 
             if (storage.getSubTasks().containsKey(id)) {
                 subTask = new SubTask(subTaskFromJson.getName(), subTaskFromJson.getDescription(), subTaskFromJson.getStatus(), subTaskFromJson.getStartTime(), subTaskFromJson.getDuration(), subTaskFromJson.getParentId());
-                fileBackendTasksManager.updateSubTask(subTask, id);
+                httpTaskManager.updateSubTask(subTask, id);
                 writeResponse(exchange, "Сабтаск обновлён", 200);
                 return;
             }
@@ -436,7 +436,7 @@ public class HttpTaskServer {
         private void handleDeleteTask(HttpExchange exchange, int id) throws IOException {
 
             if (storage.getTasks().containsKey(id)) {
-                fileBackendTasksManager.deleteTask(id);
+                httpTaskManager.deleteTask(id);
                 writeResponse(exchange, "Tаск удалён", 200);
                 return;
             }
@@ -446,7 +446,7 @@ public class HttpTaskServer {
         private void handleDeleteEpic(HttpExchange exchange, int id) throws IOException {
 
             if (storage.getEpics().containsKey(id)) {
-                fileBackendTasksManager.deleteEpic(id);
+                httpTaskManager.deleteEpic(id);
                 writeResponse(exchange, "Эпик удалён", 200);
                 return;
             }
@@ -456,7 +456,7 @@ public class HttpTaskServer {
         private void handleDeleteSubTask(HttpExchange exchange, int id) throws IOException {
 
             if (storage.getSubTasks().containsKey(id)) {
-                fileBackendTasksManager.deleteSubTask(id);
+                httpTaskManager.deleteSubTask(id);
                 writeResponse(exchange, "Сабтаск удалён", 200);
                 return;
             }
@@ -464,14 +464,14 @@ public class HttpTaskServer {
         }
 
         private void handleDeleteAllTasks(HttpExchange exchange) throws IOException {
-            fileBackendTasksManager.deleteAllTasks();
+            httpTaskManager.deleteAllTasks();
             writeResponse(exchange, "Все задачи удалены", 200);
         }
 
         private void handleGetSubTasksOfEpic(HttpExchange exchange, int id) throws IOException {
 
             if (storage.getEpics().containsKey(id)) {
-                writeResponse(exchange, gson.toJson(fileBackendTasksManager.gettingSubTasksOfEpic(id)), 200);
+                writeResponse(exchange, gson.toJson(httpTaskManager.gettingSubTasksOfEpic(id)), 200);
                 return;
             }
 
@@ -479,7 +479,7 @@ public class HttpTaskServer {
         }
 
         private void handleGetPrioritisedTasks(HttpExchange exchange) throws IOException {
-            writeResponse(exchange, gson.toJson(fileBackendTasksManager.getPrioritizedTasks()), 200);
+            writeResponse(exchange, gson.toJson(httpTaskManager.getPrioritizedTasks()), 200);
         }
 
         private void handleGetHistory(HttpExchange exchange) throws IOException {

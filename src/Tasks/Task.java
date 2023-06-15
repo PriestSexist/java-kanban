@@ -5,7 +5,7 @@ import Storage.TaskStatus;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task>{
     private final String name;
     private final String description;
     private final int id;
@@ -96,5 +96,10 @@ public class Task {
         return "Название задачи - " + name + ", Описание задачи - " + description + ", Идентификатор задачи  - "
                 + id + ", Статус задачи - " + status + ", время начала задачи " + startTime +
                 ", продолжительность задачи (в минутах) " + duration + ", время окончания задачи " + endTime;
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return this.startTime.compareTo(o.startTime);
     }
 }
