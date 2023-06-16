@@ -23,7 +23,7 @@ import java.util.Optional;
 public class HttpTaskServer {
 
     private static final int PORT = 8081;
-    HttpServer httpServer;
+    private HttpServer httpServer;
 
     public void start() throws IOException {
         httpServer = HttpServer.create();
@@ -43,11 +43,11 @@ public class HttpTaskServer {
 
     static class TasksHandler implements HttpHandler {
 
-        TaskManager httpTaskManager = Managers.getDefault();
-        HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
-        Storage storage = Managers.getDefaultStorage();
-        private static final Gson gson = new Gson();
-        private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+        private final TaskManager httpTaskManager = Managers.getDefault();
+        private final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+        private final Storage storage = Managers.getDefaultStorage();
+        private final Gson gson = new Gson();
+        private final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {

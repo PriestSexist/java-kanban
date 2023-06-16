@@ -4,7 +4,7 @@ import Tasks.Task;
 
 public class Node  {
 
-    private Task data;
+    private final Task data;
     private Node next;
     private Node prev;
 

@@ -97,7 +97,6 @@ public class Main {
                         LocalDateTime localDateTimeStartTime = LocalDateTime.parse(startTime, formatter);
 
                         newTask = new Task(name, description, localDateTimeStartTime, duration);
-                        System.out.println(newTask);
                         httpTaskManager.createTask(newTask);
                         break;
                     } else if (input == 2){

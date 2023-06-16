@@ -1,7 +1,6 @@
 package Manager.TaskManager;
 
 import Manager.HistoryManager.HistoryManager;
-import Storage.Node;
 import Storage.Storage;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -9,6 +8,7 @@ import Tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -39,7 +39,7 @@ public class HttpTaskManager extends FileBackendTasksManager {
         String subTasks = gson.toJson(storage.getSubTasks());
         kvTaskClient.put("subTasks", subTasks);
 
-        String history = gson.toJson(storage.getHistoryMap());
+        String history = gson.toJson(inMemoryHistoryManager.getTasks());
         kvTaskClient.put("history", history);
 
         String prioritisedTasks = gson.toJson(storage.getSortedTasks());
@@ -79,9 +79,17 @@ public class HttpTaskManager extends FileBackendTasksManager {
         }
 
         resultHistory = kvTaskClient.load("history");
-        HashMap<Integer, Node> history = gson.fromJson(resultHistory, new TypeToken<HashMap<Integer, Node>>() {}.getType());
+        ArrayList<Task> history = gson.fromJson(resultHistory, new TypeToken<ArrayList<Task>>() {}.getType());
         if (history != null){
-            storage.getHistoryMap().putAll(history);
+            for (Task task : history) {
+                if (storage.getTasks().containsKey(task.getId())){
+                    inMemoryHistoryManager.add(storage.getTasks().get(task.getId()));
+                } else if (storage.getEpics().containsKey(task.getId())) {
+                    inMemoryHistoryManager.add(storage.getEpics().get(task.getId()));
+                } else if (storage.getSubTasks().containsKey(task.getId())){
+                    inMemoryHistoryManager.add(storage.getSubTasks().get(task.getId()));
+                }
+            }
         }
 
         resultPrioritisedTasks = kvTaskClient.load("prioritisedTasks");
